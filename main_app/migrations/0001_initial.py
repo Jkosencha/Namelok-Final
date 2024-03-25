@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
                 ('email', models.EmailField(max_length=254, unique=True)),
-                ('user_type', models.CharField(choices=[(1, 'HOD'), (2, 'Staff'), (3, 'Student')], default=1, max_length=1)),
+                ('user_type', models.CharField(choices=[(1, 'HOD'), (2, 'Staff'), (3, 'Inquiry')], default=1, max_length=1)),
                 ('gender', models.CharField(choices=[('M', 'Male'), ('F', 'Female')], max_length=1)),
                 ('profile_pic', models.ImageField(upload_to='')),
                 ('address', models.TextField()),
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Course',
+            name='role',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=120)),
@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Session',
+            name='Season',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('start_year', models.DateField()),
@@ -79,49 +79,49 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('admin', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('course', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.course')),
+                ('role', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.role')),
             ],
         ),
         migrations.CreateModel(
-            name='Student',
+            name='Inquiry',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('admin', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('course', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.course')),
-                ('session', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.session')),
+                ('role', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.role')),
+                ('Season', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.Season')),
             ],
         ),
         migrations.CreateModel(
-            name='Subject',
+            name='Car',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=120)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.course')),
+                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.role')),
                 ('staff', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.staff')),
             ],
         ),
         migrations.CreateModel(
-            name='StudentResult',
+            name='InquiryResult',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('test', models.FloatField(default=0)),
                 ('exam', models.FloatField(default=0)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.student')),
-                ('subject', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.subject')),
+                ('Inquiry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.Inquiry')),
+                ('Car', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.Car')),
             ],
         ),
         migrations.CreateModel(
-            name='NotificationStudent',
+            name='NotificationInquiry',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('message', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.student')),
+                ('Inquiry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.Inquiry')),
             ],
         ),
         migrations.CreateModel(
@@ -135,7 +135,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='LeaveReportStudent',
+            name='LeaveReportInquiry',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date', models.CharField(max_length=60)),
@@ -143,7 +143,7 @@ class Migration(migrations.Migration):
                 ('status', models.SmallIntegerField(default=0)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.student')),
+                ('Inquiry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.Inquiry')),
             ],
         ),
         migrations.CreateModel(
@@ -159,14 +159,14 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='FeedbackStudent',
+            name='FeedbackInquiry',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('feedback', models.TextField()),
                 ('reply', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.student')),
+                ('Inquiry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.Inquiry')),
             ],
         ),
         migrations.CreateModel(
@@ -188,18 +188,18 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('attendance', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='main_app.attendance')),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.student')),
+                ('Inquiry', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.Inquiry')),
             ],
         ),
         migrations.AddField(
             model_name='attendance',
-            name='session',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.session'),
+            name='Season',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.Season'),
         ),
         migrations.AddField(
             model_name='attendance',
-            name='subject',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.subject'),
+            name='Car',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='main_app.Car'),
         ),
         migrations.CreateModel(
             name='Admin',

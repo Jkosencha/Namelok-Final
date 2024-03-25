@@ -1,4 +1,5 @@
 from django import forms
+from main_app.models import Season
 from django.forms.widgets import DateInput, TextInput
 
 from .models import *
@@ -55,14 +56,14 @@ class CustomUserForm(FormSettings):
         fields = ['first_name', 'last_name', 'email', 'gender',  'password','profile_pic', 'address' ]
 
 
-class StudentForm(CustomUserForm):
+class InquiryForm(CustomUserForm):
     def __init__(self, *args, **kwargs):
-        super(StudentForm, self).__init__(*args, **kwargs)
+        super(InquiryForm, self).__init__(*args, **kwargs)
 
     class Meta(CustomUserForm.Meta):
-        model = Student
+        model = Inquiry
         fields = CustomUserForm.Meta.fields + \
-            ['course', 'session']
+            ['role', 'Season']
 
 
 class AdminForm(CustomUserForm):
@@ -81,34 +82,34 @@ class StaffForm(CustomUserForm):
     class Meta(CustomUserForm.Meta):
         model = Staff
         fields = CustomUserForm.Meta.fields + \
-            ['course' ]
+            ['role' ]
 
 
-class CourseForm(FormSettings):
+class roleForm(FormSettings):
     def __init__(self, *args, **kwargs):
-        super(CourseForm, self).__init__(*args, **kwargs)
+        super(roleForm, self).__init__(*args, **kwargs)
 
     class Meta:
         fields = ['name']
-        model = Course
+        model = Role
 
 
-class SubjectForm(FormSettings):
+class CarForm(FormSettings):
 
     def __init__(self, *args, **kwargs):
-        super(SubjectForm, self).__init__(*args, **kwargs)
+        super(CarForm, self).__init__(*args, **kwargs)
 
     class Meta:
-        model = Subject
-        fields = ['name', 'staff', 'course']
+        model = Car
+        fields = ['name', 'staff', 'role']
 
 
-class SessionForm(FormSettings):
+class SeasonForm(FormSettings):
     def __init__(self, *args, **kwargs):
-        super(SessionForm, self).__init__(*args, **kwargs)
+        super(SeasonForm, self).__init__(*args, **kwargs)
 
     class Meta:
-        model = Session
+        model = Season
         fields = '__all__'
         widgets = {
             'start_year': DateInput(attrs={'type': 'date'}),
@@ -138,34 +139,34 @@ class FeedbackStaffForm(FormSettings):
         fields = ['feedback']
 
 
-class LeaveReportStudentForm(FormSettings):
+class LeaveReportInquiryForm(FormSettings):
     def __init__(self, *args, **kwargs):
-        super(LeaveReportStudentForm, self).__init__(*args, **kwargs)
+        super(LeaveReportInquiryForm, self).__init__(*args, **kwargs)
 
     class Meta:
-        model = LeaveReportStudent
+        model = LeaveReportInquiry
         fields = ['date', 'message']
         widgets = {
             'date': DateInput(attrs={'type': 'date'}),
         }
 
 
-class FeedbackStudentForm(FormSettings):
+class FeedbackInquiryForm(FormSettings):
 
     def __init__(self, *args, **kwargs):
-        super(FeedbackStudentForm, self).__init__(*args, **kwargs)
+        super(FeedbackInquiryForm, self).__init__(*args, **kwargs)
 
     class Meta:
-        model = FeedbackStudent
+        model = FeedbackInquiry
         fields = ['feedback']
 
 
-class StudentEditForm(CustomUserForm):
+class InquiryEditForm(CustomUserForm):
     def __init__(self, *args, **kwargs):
-        super(StudentEditForm, self).__init__(*args, **kwargs)
+        super(InquiryEditForm, self).__init__(*args, **kwargs)
 
     class Meta(CustomUserForm.Meta):
-        model = Student
+        model = Inquiry
         fields = CustomUserForm.Meta.fields 
 
 
@@ -179,13 +180,13 @@ class StaffEditForm(CustomUserForm):
 
 
 class EditResultForm(FormSettings):
-    session_list = Session.objects.all()
-    session_year = forms.ModelChoiceField(
-        label="Session Year", queryset=session_list, required=True)
+    Season_list = Season.objects.all()
+    Season_year = forms.ModelChoiceField(
+        label="Season Year", queryset=Season_list, required=True)
 
     def __init__(self, *args, **kwargs):
         super(EditResultForm, self).__init__(*args, **kwargs)
 
     class Meta:
-        model = StudentResult
-        fields = ['session_year', 'subject', 'student', 'test', 'exam']
+        model = InquiryResult
+        fields = ['Season_year', 'Car', 'Inquiry', 'test', 'exam']

@@ -5,9 +5,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
+from main_app.models import Season
+
 
 from .EmailBackend import EmailBackend
-from .models import Attendance, Session, Subject
+from .models import Attendance, Season, Car
 
 # Create your views here.
 
@@ -19,7 +21,7 @@ def login_page(request):
         elif request.user.user_type == '2':
             return redirect(reverse("staff_home"))
         else:
-            return redirect(reverse("student_home"))
+            return redirect(reverse("Student_home"))
     return render(request, 'main_app/login.html')
 
 
@@ -55,7 +57,7 @@ def doLogin(request, **kwargs):
             elif user.user_type == '2':
                 return redirect(reverse("staff_home"))
             else:
-                return redirect(reverse("student_home"))
+                return redirect(reverse("Inquiry_home"))
         else:
             messages.error(request, "Invalid details")
             return redirect("/")
@@ -70,18 +72,18 @@ def logout_user(request):
 
 @csrf_exempt
 def get_attendance(request):
-    subject_id = request.POST.get('subject')
-    session_id = request.POST.get('session')
+    subject_id = request.POST.get('car')
+    Season_id = request.POST.get('season')
     try:
-        subject = get_object_or_404(Subject, id=subject_id)
-        session = get_object_or_404(Session, id=session_id)
-        attendance = Attendance.objects.filter(subject=subject, session=session)
+        car = get_object_or_404(Car, id=subject_id)
+        season = get_object_or_404(Season, id=Season_id)
+        attendance = Attendance.objects.filter(car=car, season=season)
         attendance_list = []
         for attd in attendance:
             data = {
                     "id": attd.id,
                     "attendance_date": str(attd.date),
-                    "session": attd.session.id
+                    "season": attd.season.id
                     }
             attendance_list.append(data)
         return JsonResponse(json.dumps(attendance_list), safe=False)

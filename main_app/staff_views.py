@@ -13,25 +13,25 @@ from .models import *
 
 def staff_home(request):
     staff = get_object_or_404(Staff, admin=request.user)
-    total_students = Student.objects.filter(course=staff.course).count()
+    total_inquiries = Inquiry.objects.filter(role=staff.role).count()
     total_leave = LeaveReportStaff.objects.filter(staff=staff).count()
-    subjects = Subject.objects.filter(staff=staff)
-    total_subject = subjects.count()
-    attendance_list = Attendance.objects.filter(subject__in=subjects)
+    Cars = Car.objects.filter(staff=staff)
+    total_Car = Cars.count()
+    attendance_list = Attendance.objects.filter(Car__in=Cars)
     total_attendance = attendance_list.count()
     attendance_list = []
-    subject_list = []
-    for subject in subjects:
-        attendance_count = Attendance.objects.filter(subject=subject).count()
-        subject_list.append(subject.name)
+    Car_list = []
+    for Car in Cars:
+        attendance_count = Attendance.objects.filter(Car=Car).count()
+        Car_list.append(Car.name)
         attendance_list.append(attendance_count)
     context = {
-        'page_title': 'Staff Panel - ' + str(staff.admin.last_name) + ' (' + str(staff.course) + ')',
-        'total_students': total_students,
+        'page_title': 'Staff Panel - ' + str(staff.admin.last_name) + ' (' + str(staff.role) + ')',
+        'total_inquiries': total_inquiries,
         'total_attendance': total_attendance,
         'total_leave': total_leave,
-        'total_subject': total_subject,
-        'subject_list': subject_list,
+        'total_Car': total_Car,
+        'Car_list': Car_list,
         'attendance_list': attendance_list
     }
     return render(request, 'staff_template/home_content.html', context)
@@ -39,11 +39,11 @@ def staff_home(request):
 
 def staff_take_attendance(request):
     staff = get_object_or_404(Staff, admin=request.user)
-    subjects = Subject.objects.filter(staff_id=staff)
-    sessions = Session.objects.all()
+    Cars = Car.objects.filter(staff_id=staff)
+    Season = Season.objects.all()
     context = {
-        'subjects': subjects,
-        'sessions': sessions,
+        'Cars': Cars,
+        'Season': Season,
         'page_title': 'Take Attendance'
     }
 
@@ -51,42 +51,42 @@ def staff_take_attendance(request):
 
 
 @csrf_exempt
-def get_students(request):
-    subject_id = request.POST.get('subject')
-    session_id = request.POST.get('session')
+def get_inquiries(request):
+    Car_id = request.POST.get('Car')
+    Season_id = request.POST.get('Season')
     try:
-        subject = get_object_or_404(Subject, id=subject_id)
-        session = get_object_or_404(Session, id=session_id)
-        students = Student.objects.filter(
-            course_id=subject.course.id, session=session)
-        student_data = []
-        for student in students:
+        Car = get_object_or_404(Car, id=Car_id)
+        Season = get_object_or_404(Season, id=Season_id)
+        inquiries = Inquiry.objects.filter(
+            role_id=Car.role.id, Season=Season)
+        Inquiry_data = []
+        for Inquiry in inquiries:
             data = {
-                    "id": student.id,
-                    "name": student.admin.last_name + " " + student.admin.first_name
+                    "id": Inquiry.id,
+                    "name": Inquiry.admin.last_name + " " + Inquiry.admin.first_name
                     }
-            student_data.append(data)
-        return JsonResponse(json.dumps(student_data), content_type='application/json', safe=False)
+            Inquiry_data.append(data)
+        return JsonResponse(json.dumps(Inquiry_data), content_type='application/json', safe=False)
     except Exception as e:
         return e
 
 
 @csrf_exempt
 def save_attendance(request):
-    student_data = request.POST.get('student_ids')
+    Inquiry_data = request.POST.get('Inquiry_ids')
     date = request.POST.get('date')
-    subject_id = request.POST.get('subject')
-    session_id = request.POST.get('session')
-    students = json.loads(student_data)
+    Car_id = request.POST.get('Car')
+    Season_id = request.POST.get('Season')
+    inquiries = json.loads(Inquiry_data)
     try:
-        session = get_object_or_404(Session, id=session_id)
-        subject = get_object_or_404(Subject, id=subject_id)
-        attendance = Attendance(session=session, subject=subject, date=date)
+        Season = get_object_or_404(Season, id=Season_id)
+        Car = get_object_or_404(Car, id=Car_id)
+        attendance = Attendance(Season=Season, Car=Car, date=date)
         attendance.save()
 
-        for student_dict in students:
-            student = get_object_or_404(Student, id=student_dict.get('id'))
-            attendance_report = AttendanceReport(student=student, attendance=attendance, status=student_dict.get('status'))
+        for Inquiry_dict in inquiries:
+            Inquiry = get_object_or_404(Inquiry, id=Inquiry_dict.get('id'))
+            attendance_report = AttendanceReport(Inquiry=Inquiry, attendance=attendance, status=Inquiry_dict.get('status'))
             attendance_report.save()
     except Exception as e:
         return None
@@ -96,11 +96,11 @@ def save_attendance(request):
 
 def staff_update_attendance(request):
     staff = get_object_or_404(Staff, admin=request.user)
-    subjects = Subject.objects.filter(staff_id=staff)
-    sessions = Session.objects.all()
+    Cars = Car.objects.filter(staff_id=staff)
+    Season = Season.objects.all()
     context = {
-        'subjects': subjects,
-        'sessions': sessions,
+        'Cars': Cars,
+        'Season': Season,
         'page_title': 'Update Attendance'
     }
 
@@ -108,35 +108,35 @@ def staff_update_attendance(request):
 
 
 @csrf_exempt
-def get_student_attendance(request):
+def get_Inquiry_attendance(request):
     attendance_date_id = request.POST.get('attendance_date_id')
     try:
         date = get_object_or_404(Attendance, id=attendance_date_id)
         attendance_data = AttendanceReport.objects.filter(attendance=date)
-        student_data = []
+        Inquiry_data = []
         for attendance in attendance_data:
-            data = {"id": attendance.student.admin.id,
-                    "name": attendance.student.admin.last_name + " " + attendance.student.admin.first_name,
+            data = {"id": attendance.Inquiry.admin.id,
+                    "name": attendance.Inquiry.admin.last_name + " " + attendance.Inquiry.admin.first_name,
                     "status": attendance.status}
-            student_data.append(data)
-        return JsonResponse(json.dumps(student_data), content_type='application/json', safe=False)
+            Inquiry_data.append(data)
+        return JsonResponse(json.dumps(Inquiry_data), content_type='application/json', safe=False)
     except Exception as e:
         return e
 
 
 @csrf_exempt
 def update_attendance(request):
-    student_data = request.POST.get('student_ids')
+    Inquiry_data = request.POST.get('Inquiry_ids')
     date = request.POST.get('date')
-    students = json.loads(student_data)
+    inquiries = json.loads(Inquiry_data)
     try:
         attendance = get_object_or_404(Attendance, id=date)
 
-        for student_dict in students:
-            student = get_object_or_404(
-                Student, admin_id=student_dict.get('id'))
-            attendance_report = get_object_or_404(AttendanceReport, student=student, attendance=attendance)
-            attendance_report.status = student_dict.get('status')
+        for Inquiry_dict in inquiries:
+            Inquiry = get_object_or_404(
+                Inquiry, admin_id=Inquiry_dict.get('id'))
+            attendance_report = get_object_or_404(AttendanceReport, Inquiry=Inquiry, attendance=attendance)
+            attendance_report.status = Inquiry_dict.get('status')
             attendance_report.save()
     except Exception as e:
         return None
@@ -255,30 +255,30 @@ def staff_view_notification(request):
 
 def staff_add_result(request):
     staff = get_object_or_404(Staff, admin=request.user)
-    subjects = Subject.objects.filter(staff=staff)
-    sessions = Session.objects.all()
+    Cars = Car.objects.filter(staff=staff)
+    Season = Season.objects.all()
     context = {
         'page_title': 'Result Upload',
-        'subjects': subjects,
-        'sessions': sessions
+        'Cars': Cars,
+        'Season': Season
     }
     if request.method == 'POST':
         try:
-            student_id = request.POST.get('student_list')
-            subject_id = request.POST.get('subject')
+            Inquiry_id = request.POST.get('Inquiry_list')
+            Car_id = request.POST.get('Car')
             test = request.POST.get('test')
             exam = request.POST.get('exam')
-            student = get_object_or_404(Student, id=student_id)
-            subject = get_object_or_404(Subject, id=subject_id)
+            Inquiry = get_object_or_404(Inquiry, id=Inquiry_id)
+            Car = get_object_or_404(Car, id=Car_id)
             try:
-                data = StudentResult.objects.get(
-                    student=student, subject=subject)
+                data = InquiryResult.objects.get(
+                    Inquiry=Inquiry, Car=Car)
                 data.exam = exam
                 data.test = test
                 data.save()
                 messages.success(request, "Scores Updated")
             except:
-                result = StudentResult(student=student, subject=subject, test=test, exam=exam)
+                result = InquiryResult(Inquiry=Inquiry, Car=Car, test=test, exam=exam)
                 result.save()
                 messages.success(request, "Scores Saved")
         except Exception as e:
@@ -287,13 +287,13 @@ def staff_add_result(request):
 
 
 @csrf_exempt
-def fetch_student_result(request):
+def fetch_Inquiry_result(request):
     try:
-        subject_id = request.POST.get('subject')
-        student_id = request.POST.get('student')
-        student = get_object_or_404(Student, id=student_id)
-        subject = get_object_or_404(Subject, id=subject_id)
-        result = StudentResult.objects.get(student=student, subject=subject)
+        Car_id = request.POST.get('Car')
+        Inquiry_id = request.POST.get('Inquiry')
+        Inquiry = get_object_or_404(Inquiry, id=Inquiry_id)
+        Car = get_object_or_404(Car, id=Car_id)
+        result = InquiryResult.objects.get(Inquiry=Inquiry, Car=Car)
         result_data = {
             'exam': result.exam,
             'test': result.test

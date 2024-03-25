@@ -7,7 +7,6 @@ from django.contrib.auth.models import AbstractUser
 
 
 
-
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
         email = self.normalize_email(email)
@@ -30,7 +29,8 @@ class CustomUserManager(UserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class Session(models.Model):
+class Season(models.Model):
+    name = models.CharField(max_length=120)
     start_year = models.DateField()
     end_year = models.DateField()
 
@@ -39,7 +39,7 @@ class Session(models.Model):
 
 
 class CustomUser(AbstractUser):
-    USER_TYPE = ((1, "HOD"), (2, "Staff"), (3, "Student"))
+    USER_TYPE = ((1, "HOD"), (2, "Staff"), (3, "Inquiry"))
     GENDER = [("M", "Male"), ("F", "Female")]
     
     
@@ -65,7 +65,7 @@ class Admin(models.Model):
 
 
 
-class Course(models.Model):
+class Role(models.Model):
     name = models.CharField(max_length=120)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -74,27 +74,27 @@ class Course(models.Model):
         return self.name
 
 
-class Student(models.Model):
+class Inquiry(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, null=True, blank=False)
-    session = models.ForeignKey(Session, on_delete=models.DO_NOTHING, null=True)
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, null=True, blank=False)
+    Season = models.ForeignKey(Season, on_delete=models.DO_NOTHING, null=True)
 
     def __str__(self):
         return self.admin.last_name + ", " + self.admin.first_name
 
 
 class Staff(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, null=True, blank=False)
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, null=True, blank=False)
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.admin.last_name + " " + self.admin.first_name
 
 
-class Subject(models.Model):
+class Car(models.Model):
     name = models.CharField(max_length=120)
     staff = models.ForeignKey(Staff,on_delete=models.CASCADE,)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -103,23 +103,23 @@ class Subject(models.Model):
 
 
 class Attendance(models.Model):
-    session = models.ForeignKey(Session, on_delete=models.DO_NOTHING)
-    subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING)
+    Season = models.ForeignKey(Season, on_delete=models.DO_NOTHING)
+    Car = models.ForeignKey(Car, on_delete=models.DO_NOTHING)
     date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
 class AttendanceReport(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING)
+    Inquiry = models.ForeignKey(Inquiry, on_delete=models.DO_NOTHING)
     attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE)
     status = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class LeaveReportStudent(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+class LeaveReportInquiry(models.Model):
+    Inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
     date = models.CharField(max_length=60)
     message = models.TextField()
     status = models.SmallIntegerField(default=0)
@@ -136,8 +136,8 @@ class LeaveReportStaff(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class FeedbackStudent(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+class FeedbackInquiry(models.Model):
+    Inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
     feedback = models.TextField()
     reply = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -159,16 +159,16 @@ class NotificationStaff(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class NotificationStudent(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+class NotificationInquiry(models.Model):
+    Inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class StudentResult(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+class InquiryResult(models.Model):
+    Inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
+    Car = models.ForeignKey(Car, on_delete=models.CASCADE)
     test = models.FloatField(default=0)
     exam = models.FloatField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -183,7 +183,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         if instance.user_type == 2:
             Staff.objects.create(admin=instance)
         if instance.user_type == 3:
-            Student.objects.create(admin=instance)
+            Inquiry.objects.create(admin=instance)
 
 
 @receiver(post_save, sender=CustomUser)
@@ -193,4 +193,4 @@ def save_user_profile(sender, instance, **kwargs):
     if instance.user_type == 2:
         instance.staff.save()
     if instance.user_type == 3:
-        instance.student.save()
+        instance.Inquiry.save()

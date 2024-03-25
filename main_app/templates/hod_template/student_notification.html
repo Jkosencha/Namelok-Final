@@ -21,28 +21,28 @@
                                     <th>Full Name</th>
                                     <th>Email</th>
                                     <th>Gender</th>
-                                    <th>Course</th>
+                                    <th>role</th>
                                     <th>Avatar</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for student in students %}
+                                {% for Inquiry in inquiries %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
-                                    <td>{{student.last_name}}, {{student.first_name}}</td>
-                                    <td>{{student.email}}</td>
-                                    <td>{{student.gender}}</td>
-                                    <td>{{student.student.course.name}}</td>
+                                    <td>{{Inquiry.last_name}}, {{Inquiry.first_name}}</td>
+                                    <td>{{Inquiry.email}}</td>
+                                    <td>{{Inquiry.gender}}</td>
+                                    <td>{{Inquiry.Inquiry.role.name}}</td>
                                     <td>
-                                        {% if student.profile_pic == ""  %}
+                                        {% if Inquiry.profile_pic == ""  %}
                                         No Image
                                         {% else %}
                                         <img class="img img-fluid mb-2" height="56" width="56"
-                                            src="{{student.profile_pic}}" alt="">
+                                            src="{{Inquiry.profile_pic}}" alt="">
                                         {% endif %}
                                     </td>
-                                    <td><button data-toggle = "modal" data-target = "#myModal"class="btn btn-primary show_notification" value="{{student.id}}">Send Notification</button> 
+                                    <td><button data-toggle = "modal" data-target = "#myModal"class="btn btn-primary show_notification" value="{{Inquiry.id}}">Send Notification</button> 
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -71,7 +71,7 @@
          <div class = "modal-body">
             <div class="form-group">
                 <input type="text" id="message" class='form-control'>
-                <input type="hidden"  id="student_id" class='form-control'>
+                <input type="hidden"  id="Inquiry_id" class='form-control'>
             </div>
          </div>
          
@@ -93,16 +93,16 @@
 {% block custom_js %}
   <script>
       $(".show_notification").click(function(){
-          $("#student_id").val($(this).val())
+          $("#Inquiry_id").val($(this).val())
       })
       $(".send_notification").click(function(){
-          var id = $("#student_id").val()
+          var id = $("#Inquiry_id").val()
           var message = $("#message").val()
           sendNotification(id,message);
       })
     function sendNotification(id,message){
         $.ajax({
-            url: "{% url 'send_student_notification' %}",
+            url: "{% url 'send_Inquiry_notification' %}",
             type: 'POST',
             data: {
                 id: id,

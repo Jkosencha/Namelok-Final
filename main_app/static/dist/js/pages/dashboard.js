@@ -1,10 +1,3 @@
-/*
- * Author: Abdullah A Almsaeed
- * Date: 4 Jan 2014
- * Description:
- *      This is a demo file used only for the main dashboard (index.html)
- **/
-
 $(function () {
 
   'use strict'
@@ -28,7 +21,13 @@ $(function () {
   })
 
   // bootstrap WYSIHTML5 - text editor
-  $('.textarea').summernote()
+  $(document).ready(function() {
+    // Summernote initialization
+    $('.textarea').summernote({
+        // Summernote options
+    });
+});
+
 
   $('.daterange').daterangepicker({
     ranges   : {
