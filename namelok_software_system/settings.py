@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'namelok_software_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'namelok_db',
+        'NAME': 'test3_db',
         'USER': 'root',
         'PASSWORD': 'Jkosencha@29',
         'HOST': 'localhost',   # Change this if your MySQL server is running on a different host

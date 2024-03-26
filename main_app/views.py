@@ -5,11 +5,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
-from main_app.models import Season
+from main_app.models import Season, BookingResult
 
 
 from .EmailBackend import EmailBackend
-from .models import Attendance, Season, Car
+from .models import Attendance, Season, Car, Booking
 
 # Create your views here.
 
@@ -90,6 +90,45 @@ def get_attendance(request):
     except Exception as e:
         return None
 
+@csrf_exempt
+def Booking_home(request):
+    bookings = Booking.objects.filter(admin=request.user)
+    context = {
+        'bookings': bookings,
+        'page_title': 'Booking Homepage'
+    }
+    return render(request, 'hod_template/add_booking_template.html', context)
+
+def Booking_result(request):
+    booking = get_object_or_404(Booking, admin=request.user)
+    results = BookingResult.objects.filter(booking=booking)
+    context = {
+        'results': results,
+        'page_title': "View Results"
+    }
+    return render(request, "hod_template/booking_result.html", context)
+
+def fetch_booking_result(request):
+    """
+    A view to fetch booking results and return as JSON response.
+    """
+    # Assuming you want to fetch all booking results for the current user
+    current_user = request.user
+    booking_results = BookingResult.objects.filter(booking__admin=current_user)
+    
+    # Serialize booking results into JSON format
+    results_data = []
+    for booking_result in booking_results:
+        result_data = {
+            'id': booking_result.id,
+            'first_name': booking_result.first_name,
+            'last_name': booking_result.last_name,
+            # Add other fields as needed
+        }
+        results_data.append(result_data)
+    
+    # Return JSON response
+    return JsonResponse({'booking_results': results_data})
 
 def showFirebaseJS(request):
     data = """

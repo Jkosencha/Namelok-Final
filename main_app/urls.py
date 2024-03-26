@@ -2,7 +2,7 @@ from django.urls import path
 
 from main_app.EditResultView import EditResultView
 
-from . import hod_views, staff_views, inquiry_views, views
+from . import hod_views, staff_views, booking_views, inquiry_views, views
 
 urlpatterns = [
     path("", views.login_page, name='login_page'),
@@ -96,7 +96,30 @@ urlpatterns = [
     path('staff/result/fetch/', staff_views.fetch_Inquiry_result,
          name='fetch_Inquiry_result'),
 
-
+#     #Booking
+#     path("booking/home/", booking_views.Booking_home, name='booking_home'),
+#     path('booking/result/fetch/', booking_views.fetch_booking_result, name='fetch_booking_result'),
+#     path('booking/view_result/', booking_views.Booking_result, name='booking_result'),
+#     path("booking/result/add/", booking_views.Booking_result, name='booking_result'),
+#     path("booking/result/edit/", EditResultView.as_view(),
+#          name='edit_booking_result'),
+    
+    #Booking2
+    path("Booking/home/", booking_views.Booking_home, name='Booking_home'),
+    path("Boooking/view/attendance/", booking_views.Booking_view_attendance,
+         name='Booking_view_attendance'),
+    path("Booking/feedback/", booking_views.Booking_feedback,
+         name='Booking_feedback'),
+    path("Booking/view/profile/", booking_views.Booking_view_profile,
+         name='Booking_view_profile'),
+    path("Booking/fcmtoken/", booking_views.Booking_fcmtoken,
+         name='Booking_fcmtoken'),
+    path("Booking/view/notification/", booking_views.Booking_view_notification,
+         name="Booking_view_notification"),
+    path('Booking/view/result/', booking_views.Booking_result,
+         name='Booking_result'),
+     path('booking/result/fetch/', booking_views.fetch_booking_result,
+         name='fetch_booking_result'),
 
     # Inquiry
     path("Inquiry/home/", inquiry_views.Inquiry_home, name='Inquiry_home'),

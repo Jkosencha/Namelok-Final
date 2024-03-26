@@ -157,6 +157,40 @@ def add_Inquiry(request):
             messages.error(request, "Could Not Add: ")
     return render(request, 'hod_template/add_Inquiry_template.html', context)
 
+def add_Booking(request):
+    Booking_form = BookingForm(request.POST or None, request.FILES or None)
+    context = {'form': Booking_form, 'page_title': 'Add Booking'}
+    if request.method == 'POST':
+        if Booking_form.is_valid():
+            first_name = Booking_form.cleaned_data.get('first_name')
+            last_name = Booking_form.cleaned_data.get('last_name')
+            address = Booking_form.cleaned_data.get('address')
+            email = Booking_form.cleaned_data.get('email')
+            gender = Booking_form.cleaned_data.get('gender')
+            car = Booking_form.cleaned_data.get('car')
+            Season = Booking_form.cleaned_data.get('Season')
+            passport = request.FILES['profile_pic']
+            fs = FileSystemStorage()
+            filename = fs.save(passport.name, passport)
+            passport_url = fs.url(filename)
+            try:
+                user = CustomUser.objects.create_user(
+                    email=email, user_type=3, first_name=first_name, last_name=last_name, profile_pic=passport_url)
+                user.gender = gender
+                user.address = address
+                user.Booking.Season = Season
+                user.Booking.car = car
+                user.save()
+                messages.success(request, "Successfully Added")
+                return redirect(reverse('add_Booking'))
+            except Exception as e:
+                messages.error(request, "Could Not Add: " + str(e))
+        else:
+            messages.error(request, "Could Not Add: ")
+    return render(request, 'hod_template/add_Booking_template.html', context)
+
+
+
 
 def add_role(request):
     form = roleForm(request.POST or None)
@@ -224,6 +258,14 @@ def manage_Inquiry(request):
         'page_title': 'Manage inquiries'
     }
     return render(request, "hod_template/manage_Inquiry.html", context)
+
+def manage_Booking(request):
+    bookings = CustomUser.objects.filter(user_type=3)
+    context = {
+        'bookings': bookings,
+        'page_title': 'Manage bookings'
+    }
+    return render(request, "hod_template/manage_Booking.html", context)
 
 
 def manage_role(request):
@@ -698,6 +740,12 @@ def delete_Inquiry(request, Inquiry_id):
     Inquiry.delete()
     messages.success(request, "Inquiry deleted successfully!")
     return redirect(reverse('manage_Inquiry'))
+
+def delete_Booking(request, Booking_id):
+    Booking = get_object_or_404(CustomUser, Boooking__id=Booking_id)
+    Booking.delete()
+    messages.success(request, "Booking deleted successfully!")
+    return redirect(reverse('manage_Booking'))
 
 
 def delete_role(request, role_id):

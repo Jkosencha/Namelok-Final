@@ -210,6 +210,29 @@
                         </p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    {% url 'add_Booking' as add_Booking%}
+                    <a href="{{add_Booking}}" class="nav-link  {% if add_Booking == request.path %} active {% endif %}">
+                        <i class="nav-icon fas fa-user-plus"></i>
+                        <p>
+                            Add Booking
+
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    {% url 'manage_Booking' as manage_Booking %}
+                    {% url 'edit_Booking' Booking_id as edit_Booking %}
+
+                    <a href="{{manage_Booking}}"
+                        class="nav-link  {% if edit_Inquiry == request.path or manage_Booking == request.path %} active {% endif %}">
+                        <i class="nav-icon fas fa-th"></i>
+                        <p>
+                            Manage Booking
+
+                        </p>
+                    </a>
+                </li>
 
                 <li class="nav-item">
                     {% url 'admin_notify_staff' as admin_notify_staff %}

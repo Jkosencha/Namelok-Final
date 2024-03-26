@@ -13,6 +13,7 @@ class UserModel(UserAdmin):
 admin.site.register(CustomUser, UserModel)
 admin.site.register(Staff)
 admin.site.register(Inquiry)
+admin.site.register(Booking)
 admin.site.register(Role)
 admin.site.register(Car)
 admin.site.register(Season)

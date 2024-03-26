@@ -3,8 +3,12 @@ from django.contrib.auth.models import UserManager
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-
+from django.contrib.auth.models import AbstractUser, User
+# from networkx import cartesian_product
+# from .tests import get_default_season, get_default_car
+# from main_app.forms import CarForm
+from main_app.tests import get_default_car, get_default_season
+from namelok_software_system import settings
 
 
 class CustomUserManager(UserManager):
@@ -33,6 +37,8 @@ class Season(models.Model):
     name = models.CharField(max_length=120)
     start_year = models.DateField()
     end_year = models.DateField()
+
+   
 
     def __str__(self):
         return "From " + str(self.start_year) + " to " + str(self.end_year)
@@ -84,8 +90,9 @@ class Inquiry(models.Model):
 
 
 class Staff(models.Model):
+    name = models.CharField(max_length=255, default='Default Name')
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, null=True, blank=False)
-    admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    admin = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.admin.last_name + " " + self.admin.first_name
@@ -100,6 +107,30 @@ class Car(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class Booking(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    season = models.ForeignKey(Season, on_delete=models.CASCADE, default=get_default_season)
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, default=get_default_car)
+    
+    # amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    # Add other fields as per your requirements
+
+    def __str__(self):
+        return f"Booking for {self.admin.username}"
+
+class BookingResult(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    
+   
+
+    def __str__(self):
+        return f"Result for Booking {self.booking.admin.username}"
+
 
 
 class Attendance(models.Model):

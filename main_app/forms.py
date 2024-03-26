@@ -1,5 +1,5 @@
-from django import forms
-from main_app.models import Season
+from django import apps, forms
+from .models import CustomUser, Inquiry, Booking, Admin, Staff, Role, Car, Season, LeaveReportStaff, FeedbackStaff, LeaveReportInquiry, FeedbackInquiry, InquiryResult
 from django.forms.widgets import DateInput, TextInput
 
 from .models import *
@@ -27,6 +27,7 @@ class CustomUserForm(FormSettings):
 
     def __init__(self, *args, **kwargs):
         super(CustomUserForm, self).__init__(*args, **kwargs)
+        CustomUser = apps.get_model('main_app', 'CustomUser')
 
         if kwargs.get('instance'):
             instance = kwargs.get('instance').admin.__dict__
@@ -64,6 +65,14 @@ class InquiryForm(CustomUserForm):
         model = Inquiry
         fields = CustomUserForm.Meta.fields + \
             ['role', 'Season']
+        
+class BookingForm(CustomUserForm):
+    def __init__(self, *args, **kwargs):
+        super(BookingForm, self).__init__(*args, **kwargs)
+
+    class Meta(CustomUserForm.Meta):
+        model = Booking
+        fields = ['user', 'first_name', 'last_name', 'email', 'season', 'car']
 
 
 class AdminForm(CustomUserForm):
@@ -107,6 +116,7 @@ class CarForm(FormSettings):
 class SeasonForm(FormSettings):
     def __init__(self, *args, **kwargs):
         super(SeasonForm, self).__init__(*args, **kwargs)
+        Season = apps.get_model('main_app', 'Season')
 
     class Meta:
         model = Season
