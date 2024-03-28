@@ -13,131 +13,131 @@ from .models import *
 
 def staff_home(request):
     staff = get_object_or_404(Staff, admin=request.user)
-    total_inquiries = Inquiry.objects.filter(role=staff.role).count()
+    total_bookings = booking.objects.filter(role=staff.role).count()
     total_leave = LeaveReportStaff.objects.filter(staff=staff).count()
     Cars = Car.objects.filter(staff=staff)
     total_Car = Cars.count()
-    attendance_list = Attendance.objects.filter(Car__in=Cars)
-    total_attendance = attendance_list.count()
-    attendance_list = []
+    trips_list = trips.objects.filter(Car__in=Cars)
+    total_trips = trips_list.count()
+    trips_list = []
     Car_list = []
     for Car in Cars:
-        attendance_count = Attendance.objects.filter(Car=Car).count()
+        trips_count = trips.objects.filter(Car=Car).count()
         Car_list.append(Car.name)
-        attendance_list.append(attendance_count)
+        trips_list.append(trips_count)
     context = {
         'page_title': 'Staff Panel - ' + str(staff.admin.last_name) + ' (' + str(staff.role) + ')',
-        'total_inquiries': total_inquiries,
-        'total_attendance': total_attendance,
+        'total_bookings': total_bookings,
+        'total_trips': total_trips,
         'total_leave': total_leave,
         'total_Car': total_Car,
         'Car_list': Car_list,
-        'attendance_list': attendance_list
+        'trips_list': trips_list
     }
     return render(request, 'staff_template/home_content.html', context)
 
 
-def staff_take_attendance(request):
+def staff_take_trips(request):
     staff = get_object_or_404(Staff, admin=request.user)
     Cars = Car.objects.filter(staff_id=staff)
     Season = Season.objects.all()
     context = {
         'Cars': Cars,
         'Season': Season,
-        'page_title': 'Take Attendance'
+        'page_title': 'Take trips'
     }
 
-    return render(request, 'staff_template/staff_take_attendance.html', context)
+    return render(request, 'staff_template/staff_take_trips.html', context)
 
 
 @csrf_exempt
-def get_inquiries(request):
+def get_bookings(request):
     Car_id = request.POST.get('Car')
     Season_id = request.POST.get('Season')
     try:
         Car = get_object_or_404(Car, id=Car_id)
         Season = get_object_or_404(Season, id=Season_id)
-        inquiries = Inquiry.objects.filter(
+        bookings = booking.objects.filter(
             role_id=Car.role.id, Season=Season)
-        Inquiry_data = []
-        for Inquiry in inquiries:
+        booking_data = []
+        for booking in bookings:
             data = {
-                    "id": Inquiry.id,
-                    "name": Inquiry.admin.last_name + " " + Inquiry.admin.first_name
+                    "id": booking.id,
+                    "name": booking.admin.last_name + " " + booking.admin.first_name
                     }
-            Inquiry_data.append(data)
-        return JsonResponse(json.dumps(Inquiry_data), content_type='application/json', safe=False)
+            booking_data.append(data)
+        return JsonResponse(json.dumps(booking_data), content_type='application/json', safe=False)
     except Exception as e:
         return e
 
 
 @csrf_exempt
-def save_attendance(request):
-    Inquiry_data = request.POST.get('Inquiry_ids')
+def save_trips(request):
+    booking_data = request.POST.get('booking_ids')
     date = request.POST.get('date')
     Car_id = request.POST.get('Car')
     Season_id = request.POST.get('Season')
-    inquiries = json.loads(Inquiry_data)
+    bookings = json.loads(booking_data)
     try:
         Season = get_object_or_404(Season, id=Season_id)
         Car = get_object_or_404(Car, id=Car_id)
-        attendance = Attendance(Season=Season, Car=Car, date=date)
-        attendance.save()
+        trips = trips(Season=Season, Car=Car, date=date)
+        trips.save()
 
-        for Inquiry_dict in inquiries:
-            Inquiry = get_object_or_404(Inquiry, id=Inquiry_dict.get('id'))
-            attendance_report = AttendanceReport(Inquiry=Inquiry, attendance=attendance, status=Inquiry_dict.get('status'))
-            attendance_report.save()
+        for booking_dict in bookings:
+            booking = get_object_or_404(booking, id=booking_dict.get('id'))
+            trips_report = tripsReport(booking=booking, trips=trips, status=booking_dict.get('status'))
+            trips_report.save()
     except Exception as e:
         return None
 
     return HttpResponse("OK")
 
 
-def staff_update_attendance(request):
+def staff_update_trips(request):
     staff = get_object_or_404(Staff, admin=request.user)
     Cars = Car.objects.filter(staff_id=staff)
     Season = Season.objects.all()
     context = {
         'Cars': Cars,
         'Season': Season,
-        'page_title': 'Update Attendance'
+        'page_title': 'Update trips'
     }
 
-    return render(request, 'staff_template/staff_update_attendance.html', context)
+    return render(request, 'staff_template/staff_update_trips.html', context)
 
 
 @csrf_exempt
-def get_Inquiry_attendance(request):
-    attendance_date_id = request.POST.get('attendance_date_id')
+def get_booking_trips(request):
+    trips_date_id = request.POST.get('trips_date_id')
     try:
-        date = get_object_or_404(Attendance, id=attendance_date_id)
-        attendance_data = AttendanceReport.objects.filter(attendance=date)
-        Inquiry_data = []
-        for attendance in attendance_data:
-            data = {"id": attendance.Inquiry.admin.id,
-                    "name": attendance.Inquiry.admin.last_name + " " + attendance.Inquiry.admin.first_name,
-                    "status": attendance.status}
-            Inquiry_data.append(data)
-        return JsonResponse(json.dumps(Inquiry_data), content_type='application/json', safe=False)
+        date = get_object_or_404(trips, id=trips_date_id)
+        trips_data = tripsReport.objects.filter(trips=date)
+        booking_data = []
+        for trips in trips_data:
+            data = {"id": trips.booking.admin.id,
+                    "name": trips.booking.admin.last_name + " " + trips.booking.admin.first_name,
+                    "status": trips.status}
+            booking_data.append(data)
+        return JsonResponse(json.dumps(booking_data), content_type='application/json', safe=False)
     except Exception as e:
         return e
 
 
 @csrf_exempt
-def update_attendance(request):
-    Inquiry_data = request.POST.get('Inquiry_ids')
+def update_trips(request):
+    booking_data = request.POST.get('booking_ids')
     date = request.POST.get('date')
-    inquiries = json.loads(Inquiry_data)
+    bookings = json.loads(booking_data)
     try:
-        attendance = get_object_or_404(Attendance, id=date)
+        trips = get_object_or_404(trips, id=date)
 
-        for Inquiry_dict in inquiries:
-            Inquiry = get_object_or_404(
-                Inquiry, admin_id=Inquiry_dict.get('id'))
-            attendance_report = get_object_or_404(AttendanceReport, Inquiry=Inquiry, attendance=attendance)
-            attendance_report.status = Inquiry_dict.get('status')
-            attendance_report.save()
+        for booking_dict in bookings:
+            booking = get_object_or_404(
+                booking, admin_id=booking_dict.get('id'))
+            trips_report = get_object_or_404(tripsReport, booking=booking, trips=trips)
+            trips_report.status = booking_dict.get('status')
+            trips_report.save()
     except Exception as e:
         return None
 
@@ -200,13 +200,10 @@ def staff_view_profile(request):
             if form.is_valid():
                 first_name = form.cleaned_data.get('first_name')
                 last_name = form.cleaned_data.get('last_name')
-                password = form.cleaned_data.get('password') or None
                 address = form.cleaned_data.get('address')
                 gender = form.cleaned_data.get('gender')
                 passport = request.FILES.get('profile_pic') or None
                 admin = staff.admin
-                if password != None:
-                    admin.set_password(password)
                 if passport != None:
                     fs = FileSystemStorage()
                     filename = fs.save(passport.name, passport)
@@ -264,21 +261,21 @@ def staff_add_result(request):
     }
     if request.method == 'POST':
         try:
-            Inquiry_id = request.POST.get('Inquiry_list')
+            booking_id = request.POST.get('booking_list')
             Car_id = request.POST.get('Car')
             test = request.POST.get('test')
             exam = request.POST.get('exam')
-            Inquiry = get_object_or_404(Inquiry, id=Inquiry_id)
+            booking = get_object_or_404(booking, id=booking_id)
             Car = get_object_or_404(Car, id=Car_id)
             try:
-                data = InquiryResult.objects.get(
-                    Inquiry=Inquiry, Car=Car)
+                data = bookingResult.objects.get(
+                    booking=booking, Car=Car)
                 data.exam = exam
                 data.test = test
                 data.save()
                 messages.success(request, "Scores Updated")
             except:
-                result = InquiryResult(Inquiry=Inquiry, Car=Car, test=test, exam=exam)
+                result = bookingResult(booking=booking, Car=Car, test=test, exam=exam)
                 result.save()
                 messages.success(request, "Scores Saved")
         except Exception as e:
@@ -287,13 +284,13 @@ def staff_add_result(request):
 
 
 @csrf_exempt
-def fetch_Inquiry_result(request):
+def fetch_booking_result(request):
     try:
         Car_id = request.POST.get('Car')
-        Inquiry_id = request.POST.get('Inquiry')
-        Inquiry = get_object_or_404(Inquiry, id=Inquiry_id)
+        booking_id = request.POST.get('booking')
+        booking = get_object_or_404(booking, id=booking_id)
         Car = get_object_or_404(Car, id=Car_id)
-        result = InquiryResult.objects.get(Inquiry=Inquiry, Car=Car)
+        result = bookingResult.objects.get(booking=booking, Car=Car)
         result_data = {
             'exam': result.exam,
             'test': result.test

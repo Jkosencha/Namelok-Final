@@ -1,6 +1,10 @@
 from django import apps, forms
-from .models import CustomUser, Inquiry, Booking, Admin, Staff, Role, Car, Season, LeaveReportStaff, FeedbackStaff, LeaveReportInquiry, FeedbackInquiry, InquiryResult
+from django.apps import apps
+from .models import CustomUser, booking, Admin, Staff, Role, Car, Season, LeaveReportStaff, FeedbackStaff, LeaveReportbooking, Feedbackbooking, bookingResult
 from django.forms.widgets import DateInput, TextInput
+from django import forms
+
+from .models import Role
 
 from .models import *
 
@@ -57,22 +61,13 @@ class CustomUserForm(FormSettings):
         fields = ['first_name', 'last_name', 'email', 'gender',  'password','profile_pic', 'address' ]
 
 
-class InquiryForm(CustomUserForm):
-    def __init__(self, *args, **kwargs):
-        super(InquiryForm, self).__init__(*args, **kwargs)
-
-    class Meta(CustomUserForm.Meta):
-        model = Inquiry
-        fields = CustomUserForm.Meta.fields + \
-            ['role', 'Season']
-        
 class BookingForm(CustomUserForm):
     def __init__(self, *args, **kwargs):
         super(BookingForm, self).__init__(*args, **kwargs)
 
     class Meta(CustomUserForm.Meta):
-        model = Booking
-        fields = ['user', 'first_name', 'last_name', 'email', 'season', 'car']
+        model = booking
+        fields = ['first_name', 'last_name', 'email', 'gender', 'season']
 
 
 class AdminForm(CustomUserForm):
@@ -94,14 +89,10 @@ class StaffForm(CustomUserForm):
             ['role' ]
 
 
-class roleForm(FormSettings):
-    def __init__(self, *args, **kwargs):
-        super(roleForm, self).__init__(*args, **kwargs)
-
+class roleForm(forms.ModelForm):
     class Meta:
-        fields = ['name']
         model = Role
-
+        fields = ['name']
 
 class CarForm(FormSettings):
 
@@ -149,34 +140,34 @@ class FeedbackStaffForm(FormSettings):
         fields = ['feedback']
 
 
-class LeaveReportInquiryForm(FormSettings):
+class LeaveReportbookingForm(FormSettings):
     def __init__(self, *args, **kwargs):
-        super(LeaveReportInquiryForm, self).__init__(*args, **kwargs)
+        super(LeaveReportbookingForm, self).__init__(*args, **kwargs)
 
     class Meta:
-        model = LeaveReportInquiry
+        model = LeaveReportbooking
         fields = ['date', 'message']
         widgets = {
             'date': DateInput(attrs={'type': 'date'}),
         }
 
 
-class FeedbackInquiryForm(FormSettings):
+class FeedbackbookingForm(FormSettings):
 
     def __init__(self, *args, **kwargs):
-        super(FeedbackInquiryForm, self).__init__(*args, **kwargs)
+        super(FeedbackbookingForm, self).__init__(*args, **kwargs)
 
     class Meta:
-        model = FeedbackInquiry
+        model = Feedbackbooking
         fields = ['feedback']
 
 
-class InquiryEditForm(CustomUserForm):
+class bookingEditForm(CustomUserForm):
     def __init__(self, *args, **kwargs):
-        super(InquiryEditForm, self).__init__(*args, **kwargs)
+        super(bookingEditForm, self).__init__(*args, **kwargs)
 
     class Meta(CustomUserForm.Meta):
-        model = Inquiry
+        model = booking
         fields = CustomUserForm.Meta.fields 
 
 
@@ -198,5 +189,5 @@ class EditResultForm(FormSettings):
         super(EditResultForm, self).__init__(*args, **kwargs)
 
     class Meta:
-        model = InquiryResult
-        fields = ['Season_year', 'Car', 'Inquiry', 'test', 'exam']
+        model = bookingResult
+        fields = ['Season_year', 'Car', 'booking', 'test', 'exam']

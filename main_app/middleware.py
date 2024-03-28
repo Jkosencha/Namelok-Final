@@ -9,14 +9,14 @@ class LoginCheckMiddleWare(MiddlewareMixin):
         user = request.user # Who is the current user ?
         if user.is_authenticated:
             if user.user_type == '1': # Is it the HOD/Admin
-                if modulename == 'main_app.Inquiry_views':
+                if modulename == 'main_app.booking_views':
                     return redirect(reverse('admin_home'))
             elif user.user_type == '2': #  Staff :-/ ?
-                if modulename == 'main_app.Inquiry_views' or modulename == 'main_app.hod_views':
+                if modulename == 'main_app.booking_views' or modulename == 'main_app.hod_views':
                     return redirect(reverse('staff_home'))
-            elif user.user_type == '3': # ... or Inquiry ?
+            elif user.user_type == '3': # ... or booking ?
                 if modulename == 'main_app.hod_views' or modulename == 'main_app.staff_views':
-                    return redirect(reverse('Inquiry_home'))
+                    return redirect(reverse('booking_home'))
             else: # None of the aforementioned ? Please take the user to login page
                 return redirect(reverse('login_page'))
         else:

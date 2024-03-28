@@ -188,47 +188,24 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    {% url 'add_Inquiry' as add_Inquiry%}
-                    <a href="{{add_Inquiry}}" class="nav-link  {% if add_Inquiry == request.path %} active {% endif %}">
+                    {% url 'add_booking' as add_booking%}
+                    <a href="{{add_booking}}" class="nav-link  {% if add_booking == request.path %} active {% endif %}">
                         <i class="nav-icon fas fa-user-plus"></i>
                         <p>
-                            Add Inquiry
+                            Add booking
 
                         </p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    {% url 'manage_Inquiry' as manage_Inquiry %}
-                    {% url 'edit_Inquiry' Inquiry_id as edit_Inquiry %}
+                    {% url 'manage_booking' as manage_booking %}
+                    {% url 'edit_booking' booking_id as edit_booking %}
 
-                    <a href="{{manage_Inquiry}}"
-                        class="nav-link  {% if edit_Inquiry == request.path or manage_Inquiry == request.path %} active {% endif %}">
+                    <a href="{{manage_booking}}"
+                        class="nav-link  {% if edit_booking == request.path or manage_booking == request.path %} active {% endif %}">
                         <i class="nav-icon fas fa-th"></i>
                         <p>
-                            Manage Inquiry
-
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    {% url 'add_Booking' as add_Booking%}
-                    <a href="{{add_Booking}}" class="nav-link  {% if add_Booking == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-user-plus"></i>
-                        <p>
-                            Add Booking
-
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    {% url 'manage_Booking' as manage_Booking %}
-                    {% url 'edit_Booking' Booking_id as edit_Booking %}
-
-                    <a href="{{manage_Booking}}"
-                        class="nav-link  {% if edit_Inquiry == request.path or manage_Booking == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-th"></i>
-                        <p>
-                            Manage Booking
+                            Manage booking
 
                         </p>
                     </a>
@@ -245,42 +222,7 @@
                         </p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    {% url 'admin_notify_Inquiry' as admin_notify_Inquiry %}
-                    <a href="{{admin_notify_Inquiry}}"
-                        class="nav-link {% if admin_notify_Inquiry == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-bullhorn"></i>
-                        <p>
-                            Notify Inquiry
 
-                        </p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    {% url 'admin_view_attendance' as admin_view_attendance %}
-
-                <li class="nav-item">
-                    <a href="{{admin_view_attendance}}"
-                        class="nav-link  {% if admin_view_attendance == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>
-                            View Attendance
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    {% url 'Inquiry_feedback_message' as Inquiry_feedback_message %}
-
-                    <a href="{{ Inquiry_feedback_message }}"
-                        class="nav-link  {% if Inquiry_feedback_message == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-comment-alt"></i>
-                        <p>
-                            Inquiry Feedback
-
-                        </p>
-                    </a>
-                </li>
                 <li class="nav-item">
                     {% url 'staff_feedback_message' as staff_feedback_message %}
 
@@ -289,10 +231,10 @@
                         <i class="nav-icon fas fa-comment"></i>
                         <p>
                             Staff Feedback
-
                         </p>
                     </a>
                 </li>
+                
                 <li class="nav-item">
                     {% url 'view_staff_leave' as view_staff_leave %}
 
@@ -301,18 +243,6 @@
                         <i class="nav-icon fas fa-check-double"></i>
                         <p>
                             Staff Leave
-
-                        </p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    {% url 'view_Inquiry_leave' as view_Inquiry_leave %}
-
-                    <a href="{% url 'view_Inquiry_leave' %}"
-                        class="nav-link  {% if view_Inquiry_leave == request.path %} active {% endif %}">
-                        <i class="nav-icon fas fa-check-double"></i>
-                        <p>
-                            Inquiry Leave
 
                         </p>
                     </a>
@@ -379,9 +309,9 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                {% url 'edit_Inquiry_result' as edit_Inquiry_result %}
-                                <a href="{{edit_Inquiry_result}}"
-                                    class="nav-link {% if edit_Inquiry_result == request.path %} active {% endif %}">
+                                {% url 'edit_booking_result' as edit_booking_result %}
+                                <a href="{{edit_booking_result}}"
+                                    class="nav-link {% if edit_booking_result == request.path %} active {% endif %}">
                                     <i class="nav-icon fas fa-th"></i>
                                     <p>
                                         Edit Result
@@ -390,23 +320,23 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                {% url 'staff_take_attendance' as staff_take_attendance %}
-                                <a href="{{staff_take_attendance}}"
-                                    class="nav-link {% if staff_take_attendance == request.path %} active {% endif %}">
+                                {% url 'staff_take_trips' as staff_take_trips %}
+                                <a href="{{staff_take_trips}}"
+                                    class="nav-link {% if staff_take_trips == request.path %} active {% endif %}">
                                     <i class="nav-icon fas fa-calendar-alt"></i>
                                     <p>
-                                        Take Attendance
+                                        Take trips
 
                                     </p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                {% url 'staff_update_attendance' as staff_update_attendance %}
-                                <a href="{{staff_update_attendance}}"
-                                    class="nav-link {% if staff_update_attendance == request.path %} active {% endif %}">
+                                {% url 'staff_update_trips' as staff_update_trips %}
+                                <a href="{{staff_update_trips}}"
+                                    class="nav-link {% if staff_update_trips == request.path %} active {% endif %}">
                                     <i class="nav-icon fas fa-th"></i>
                                     <p>
-                                        View/Update Attendance
+                                        View/Update trips
 
                                     </p>
                                 </a>
@@ -453,7 +383,7 @@
 
                                 <img src="{% static 'dist/img/AdminLTELogo.png' %} " alt="AdminLTE Logo"
                                     class="brand-image img-circle elevation-3" style="opacity: .8">
-                                <span class="brand-text font-weight-light">Inquiry Panel</span>
+                                <span class="brand-text font-weight-light">booking Panel</span>
                             </a>
 
                             <!-- Sidebar -->
@@ -475,9 +405,9 @@
                                         data-accordion="false">
 
                                         <li class="nav-item">
-                                            {% url 'Inquiry_home' as Inquiry_home %}
-                                            <a href="{{Inquiry_home}}"
-                                                class="nav-link {% if Inquiry_home == request.path %} active {% endif %}">
+                                            {% url 'booking_home' as booking_home %}
+                                            <a href="{{booking_home}}"
+                                                class="nav-link {% if booking_home == request.path %} active {% endif %}">
                                                 <i class="nav-icon fas fa-home"></i>
                                                 <p>
                                                     Home
@@ -487,9 +417,9 @@
                                         </li>
 
                                         <li class="nav-item">
-                                            {% url 'Inquiry_view_profile' as Inquiry_view_profile %}
-                                            <a href="{{Inquiry_view_profile}}"
-                                                class="nav-link {% if Inquiry_view_profile == request.path %} active {% endif %}">
+                                            {% url 'booking_view_profile' as booking_view_profile %}
+                                            <a href="{{booking_view_profile}}"
+                                                class="nav-link {% if booking_view_profile == request.path %} active {% endif %}">
                                                 <i class="nav-icon fas fa-address-card"></i>
                                                 <p>
                                                     Update Profile
@@ -499,18 +429,18 @@
                                         </li>
 
                                         <li class="nav-item">
-                                            {% url 'Inquiry_view_attendance' as Inquiry_view_attendance %}
-                                            <a href="{{Inquiry_view_attendance}}"
-                                                class="nav-link {% if Inquiry_view_attendance == request.path %} active {% endif %}">
+                                            {% url 'booking_view_trips' as booking_view_trips %}
+                                            <a href="{{booking_view_trips}}"
+                                                class="nav-link {% if booking_view_trips == request.path %} active {% endif %}">
                                                 <i class="nav-icon fas fa-calendar-alt"></i>
-                                                <p>View Attendance</p>
+                                                <p>View trips</p>
                                             </a>
                                         </li>
 
                                         <li class="nav-item">
-                                            {% url 'Inquiry_view_notification' as Inquiry_view_notification %}
-                                            <a href="{{Inquiry_view_notification}}"
-                                                class="nav-link {% if Inquiry_view_notification == request.path %} active {% endif %}">
+                                            {% url 'booking_view_notification' as booking_view_notification %}
+                                            <a href="{{booking_view_notification}}"
+                                                class="nav-link {% if booking_view_notification == request.path %} active {% endif %}">
                                                 <i class="nav-icon fas fa-bell"></i>
                                                 <p>
                                                     View Notifications
@@ -520,9 +450,9 @@
                                         </li>
 
                                         <li class="nav-item">
-                                            {% url 'Inquiry_apply_leave' as Inquiry_apply_leave %}
-                                            <a href="{{Inquiry_apply_leave}}"
-                                                class="nav-link {% if Inquiry_apply_leave == request.path %} active {% endif %}">
+                                            {% url 'booking_apply_leave' as booking_apply_leave %}
+                                            <a href="{{booking_apply_leave}}"
+                                                class="nav-link {% if booking_apply_leave == request.path %} active {% endif %}">
                                                 <i class="nav-icon fas fa-check"></i>
                                                 <p>
                                                     Apply For Leave
@@ -532,9 +462,9 @@
                                         </li>
 
                                         <li class="nav-item">
-                                            {% url 'Inquiry_feedback' as Inquiry_feedback %}
-                                            <a href="{{Inquiry_feedback}}"
-                                                class="nav-link {% if Inquiry_feedback == request.path %} active {% endif %}">
+                                            {% url 'booking_feedback' as booking_feedback %}
+                                            <a href="{{booking_feedback}}"
+                                                class="nav-link {% if booking_feedback == request.path %} active {% endif %}">
                                                 <i class="nav-icon fas fa-comment-alt"></i>
                                                 <p>
                                                     Feedback

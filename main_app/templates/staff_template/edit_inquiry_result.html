@@ -47,28 +47,28 @@
 <script>
     $(document).ready(function () {
         $("#id_Car").change(function () {
-            fetchinquiries();
+            fetchbookings();
             });
             $("#id_Season_year").change(function () {
-                fetchinquiries();
+                fetchbookings();
                 });
-   $("#id_Inquiry").change(function () {
-    fetch_Inquiry_result();
+   $("#id_booking").change(function () {
+    fetch_booking_result();
                 });
                 $("#id_exam").hide()
                 $("#id_test").hide()
                 $("#update_result").hide()
                 $('label[for="id_test"]').hide();
                 $('label[for="id_exam"]').hide();
-        function fetchinquiries(){
+        function fetchbookings(){
             var Car = $("#id_Car").val()
             var Season = $("#id_Season_year").val()
-            $("#id_Inquiry").html(null)
+            $("#id_booking").html(null)
             if (Season.length  == 0 || Car.length == 0 || Season < 1 || Car < 1){
                 return false;
             }
             $.ajax({
-                url: "{% url 'get_inquiries' %}",
+                url: "{% url 'get_bookings' %}",
                 type: 'POST',
                 data: {
                     Car: Car,
@@ -79,21 +79,21 @@
                 if (json_data.length < 1) {
                     alert("No data to display")
                 } else {
-                    var div_data = "<option>Select Inquiry</option>"
+                    var div_data = "<option>Select booking</option>"
 
                     for (key in json_data) {
                         div_data += "<option value='" + json_data[key]['id'] + "'>" + json_data[key]['name'] + " </option>"
                     }
              
-                    $("#id_Inquiry").html(div_data)
+                    $("#id_booking").html(div_data)
                 }
             }).fail(function (response) {
-                alert("Error in fetching inquiries")
+                alert("Error in fetching bookings")
             })
                }
 
-               function fetch_Inquiry_result(){
-                var Inquiry = $("#id_Inquiry").val()
+               function fetch_booking_result(){
+                var booking = $("#id_booking").val()
                 var Car = $("#id_Car").val()
                 $("#id_test").val(null)
                 $("#id_exam").val(null)
@@ -102,15 +102,15 @@
                 $("#id_test").hide()
                 $('label[for="id_test"]').hide();
                 $('label[for="id_exam"]').hide();
-                if (Inquiry.length  == 0 || Car.length == 0 || Inquiry < 1 || Car < 1){
+                if (booking.length  == 0 || Car.length == 0 || booking < 1 || Car < 1){
                     return false;
                 }
                 $.ajax({
-                    url: "{% url 'fetch_Inquiry_result' %}",
+                    url: "{% url 'fetch_booking_result' %}",
                     type: 'POST',
                     data: {
                         Car: Car,
-                        Inquiry:Inquiry
+                        booking:booking
                     }
                 }).done(function (response) {
                     if (response == 'False') {
@@ -128,7 +128,7 @@
 
                     }
                 }).fail(function (response) {
-                    alert("Error in fetching inquiries")
+                    alert("Error in fetching bookings")
                 })
                }
 

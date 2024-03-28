@@ -10,7 +10,7 @@ from django.contrib.auth.models import AbstractUser, User
 from main_app.tests import get_default_car, get_default_season
 from namelok_software_system import settings
 
-
+from django.contrib.auth import get_user_model
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
         email = self.normalize_email(email)
@@ -45,14 +45,13 @@ class Season(models.Model):
 
 
 class CustomUser(AbstractUser):
-    USER_TYPE = ((1, "HOD"), (2, "Staff"), (3, "Inquiry"))
+    USER_TYPE = ((1, "HOD"), (2, "Staff"), (3, "booking"))
     GENDER = [("M", "Male"), ("F", "Female")]
-    
     
     username = None  # Removed username, using email instead
     email = models.EmailField(unique=True)
     user_type = models.CharField(default=1, choices=USER_TYPE, max_length=1)
-    gender = models.CharField(max_length=1, choices=GENDER)
+    gender = models.CharField(max_length=1, choices=GENDER, default='M')  # Set default to 'Male'
     profile_pic = models.ImageField()
     address = models.TextField()
     fcm_token = models.TextField(default="")  # For firebase notifications
@@ -64,6 +63,7 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.last_name + ", " + self.first_name
+
 
 
 class Admin(models.Model):
@@ -80,77 +80,54 @@ class Role(models.Model):
         return self.name
 
 
-class Inquiry(models.Model):
-    admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, null=True, blank=False)
-    Season = models.ForeignKey(Season, on_delete=models.DO_NOTHING, null=True)
+class booking(models.Model):
+    admin = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, null=True, blank=True)
+    season = models.ForeignKey(Season, on_delete=models.DO_NOTHING, null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='bookings', default=None)
 
     def __str__(self):
-        return self.admin.last_name + ", " + self.admin.first_name
-
+       return f"{self.user.last_name}, {self.user.first_name}"
 
 class Staff(models.Model):
     name = models.CharField(max_length=255, default='Default Name')
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, null=True, blank=False)
-    admin = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    admin = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 
     def __str__(self):
         return self.admin.last_name + " " + self.admin.first_name
 
 
 class Car(models.Model):
+    id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=120)
-    staff = models.ForeignKey(Staff,on_delete=models.CASCADE,)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
     
 
-class Booking(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField()
-    season = models.ForeignKey(Season, on_delete=models.CASCADE, default=get_default_season)
-    car = models.ForeignKey(Car, on_delete=models.CASCADE, default=get_default_car)
-    
-    # amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    # Add other fields as per your requirements
-
-    def __str__(self):
-        return f"Booking for {self.admin.username}"
-
-class BookingResult(models.Model):
-    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
-    
-   
-
-    def __str__(self):
-        return f"Result for Booking {self.booking.admin.username}"
-
-
-
-class Attendance(models.Model):
-    Season = models.ForeignKey(Season, on_delete=models.DO_NOTHING)
-    Car = models.ForeignKey(Car, on_delete=models.DO_NOTHING)
+class Trips(models.Model):
+    season = models.ForeignKey(Season, on_delete=models.DO_NOTHING)
+    car = models.ForeignKey(Car, on_delete=models.DO_NOTHING)
     date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class AttendanceReport(models.Model):
-    Inquiry = models.ForeignKey(Inquiry, on_delete=models.DO_NOTHING)
-    attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE)
+class tripsReport(models.Model):
+    booking = models.ForeignKey(booking, on_delete=models.DO_NOTHING)
+    trips = models.ForeignKey(Trips, on_delete=models.CASCADE)
     status = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class LeaveReportInquiry(models.Model):
-    Inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
+class LeaveReportbooking(models.Model):
+    booking = models.ForeignKey(booking, on_delete=models.CASCADE)
     date = models.CharField(max_length=60)
     message = models.TextField()
     status = models.SmallIntegerField(default=0)
@@ -167,8 +144,8 @@ class LeaveReportStaff(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class FeedbackInquiry(models.Model):
-    Inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
+class Feedbackbooking(models.Model):
+    booking = models.ForeignKey(booking, on_delete=models.CASCADE)
     feedback = models.TextField()
     reply = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -190,15 +167,15 @@ class NotificationStaff(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class NotificationInquiry(models.Model):
-    Inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
+class Notificationbooking(models.Model):
+    booking = models.ForeignKey(booking, on_delete=models.CASCADE)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class InquiryResult(models.Model):
-    Inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE)
+class bookingResult(models.Model):
+    booking = models.ForeignKey(booking, on_delete=models.CASCADE)
     Car = models.ForeignKey(Car, on_delete=models.CASCADE)
     test = models.FloatField(default=0)
     exam = models.FloatField(default=0)
@@ -211,17 +188,25 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         if instance.user_type == 1:
             Admin.objects.create(admin=instance)
-        if instance.user_type == 2:
-            Staff.objects.create(admin=instance)
-        if instance.user_type == 3:
-            Inquiry.objects.create(admin=instance)
+        elif instance.user_type == 2:
+            # Assuming each CustomUser can have one Staff instance associated with it
+            # Check if the CustomUser instance has an associated Staff instance
+            staff_instance, _ = Staff.objects.get_or_create(admin=instance)
+            staff_instance.name = f"{instance.last_name}, {instance.first_name}"
+            staff_instance.save()
+        elif instance.user_type == 3:
+            booking.objects.create(admin=instance)
 
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
     if instance.user_type == 1:
         instance.admin.save()
-    if instance.user_type == 2:
-        instance.staff.save()
-    if instance.user_type == 3:
-        instance.Inquiry.save()
+    elif instance.user_type == 2:
+        # Assuming each CustomUser can have one Staff instance associated with it
+        # Check if the CustomUser instance has an associated Staff instance
+        staff_instance, created = Staff.objects.get_or_create(admin=instance)
+        # Save the Staff instance
+        staff_instance.save()
+    elif instance.user_type == 3:
+        instance.booking.save()

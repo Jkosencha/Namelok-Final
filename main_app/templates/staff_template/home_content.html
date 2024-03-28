@@ -10,9 +10,9 @@
                 <!-- small box -->
                 <div class="small-box bg-info">
                     <div class="inner">
-                        <h3>{{total_inquiries}}</h3>
+                        <h3>{{total_bookings}}</h3>
 
-                        <p>Total inquiries</p>
+                        <p>Total bookings</p>
                     </div>
                     <div class="icon">
                       <i class="nav-icon fas fa-user-graduate"></i>
@@ -25,9 +25,9 @@
                 <!-- small box -->
                 <div class="small-box bg-success">
                     <div class="inner">
-                        <h3>{{total_attendance}}</h3>
+                        <h3>{{total_trips}}</h3>
 
-                        <p>Total Attendance Taken</p>
+                        <p>Total trips Taken</p>
                     </div>
                     <div class="icon">
                       <i class="nav-icon fas fa-calendar-alt"></i>
@@ -119,10 +119,10 @@
   <script>
       $(document).ready(function(){
         var donutData        = {
-            labels: ['Attendance', 'Leave'],
+            labels: ['trips', 'Leave'],
             datasets: [
               {
-                data:[{{total_attendance}}, {{total_leave}}],
+                data:[{{total_trips}}, {{total_leave}}],
                 backgroundColor : ['#00a65a', '#f39c12',],
               }
             ]
@@ -142,13 +142,13 @@
         });
 
         var Car_list = {{ Car_list|safe|escape }};
-        var attendance_list = {{ attendance_list }};
+        var trips_list = {{ trips_list }};
   
             var barChartData = {
       labels  : Car_list,
       datasets: [
       {
-        label               : 'Attendance Per Car',
+        label               : 'trips Per Car',
         backgroundColor     : '#17A2B8',
         borderColor         : 'rgba(60,141,188,0.8)',
         pointRadius          : false,
@@ -156,7 +156,7 @@
         pointStrokeColor    : 'rgba(60,141,188,1)',
         pointHighlightFill  : '#fff',
         pointHighlightStroke: 'rgba(60,141,188,1)',
-        data                : attendance_list
+        data                : trips_list
       }, 
       
       ]

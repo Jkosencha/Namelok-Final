@@ -10,14 +10,14 @@
                 <!-- small box -->
                 <div class="small-box bg-info">
                     <div class="inner">
-                        <h3>{{total_inquiries}}</h3>
+                        <h3>{{total_bookings}}</h3>
 
-                        <p>Total inquiries</p>
+                        <p>Total bookings</p>
                     </div>
                     <div class="icon">
                       <i class="nav-icon fas fa-user-graduate"></i>
                     </div>
-                    <a href="{% url 'manage_Inquiry' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    <a href="{% url 'manage_booking' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
 
                 </div>
             </div>
@@ -75,7 +75,7 @@
                 <!-- LINE CHART -->
                 <div class="card card-dark">
                   <div class="card-header">
-                    <h3 class="card-title">Staffs - inquiries Overview</h3>
+                    <h3 class="card-title">Staffs - bookings Overview</h3>
     
                     <div class="card-tools">
                       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -117,7 +117,7 @@
             <!-- BAR CHART -->
             <div class="card card-dark">
               <div class="card-header">
-                <h3 class="card-title">Inquiry's Overview</h3>
+                <h3 class="card-title">booking's Overview</h3>
 
                 <div class="card-tools">
                   <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -148,7 +148,7 @@
             <!-- PIE CHART -->
             <div class="card card-dark">
               <div class="card-header">
-                <h3 class="card-title">Total inquiries in Each role</h3>
+                <h3 class="card-title">Total bookings</h3>
 
                 <div class="card-tools">
                   <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -167,7 +167,7 @@
             <!-- PIE CHART -->
             <div class="card card-dark">
               <div class="card-header">
-                <h3 class="card-title">Total inquiries in Each Car</h3>
+                <h3 class="card-title">Total bookings for Each Car</h3>
 
                 <div class="card-tools">
                   <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -183,6 +183,9 @@
           </div>
         </div>
     </div><!-- /.container-fluid -->
+   
+</div><!-- /.container-fluid -->
+
 </section>
 {% endblock content %}
 
@@ -190,10 +193,10 @@
   <script>
       $(document).ready(function(){
         var donutData        = {
-            labels: ['inquiries', 'Staff'],
+            labels: ['bookings', 'Staff'],
             datasets: [
               {
-                data:[{{total_inquiries}}, {{total_staff}}],
+                data:[{{total_bookings}}, {{total_staff}}],
                 backgroundColor : ['#00a65a', '#f39c12',],
               }
             ]
@@ -213,13 +216,13 @@
         });
 
         var Car_list = {{ Car_list|safe|escape }};
-        var attendance_list = {{ attendance_list }};
+        var trips_list = {{ trips_list }};
   
             var barChartData = {
       labels  : Car_list,
       datasets: [
       {
-        label               : 'Attendance Per Car',
+        label               : 'trips Per Car',
         backgroundColor     : '#17A2B8',
         borderColor         : 'rgba(60,141,188,0.8)',
         pointRadius          : false,
@@ -227,7 +230,7 @@
         pointStrokeColor    : 'rgba(60,141,188,1)',
         pointHighlightFill  : '#fff',
         pointHighlightStroke: 'rgba(60,141,188,1)',
-        data                : attendance_list
+        data                : trips_list
       }, 
       
       ]
@@ -258,14 +261,14 @@
         })
        
 
-      // Total inquiries in Each Car
-      var Inquiry_count_list_in_Car = {{ Inquiry_count_list_in_Car }}
+      // Total bookings per Car
+      var booking_count_list_in_Car = {{ booking_count_list_in_Car }}
       var Car_list = {{ Car_list|safe }}
       var pieData3 = {
         labels: Car_list,
         datasets: [
           {
-            data: Inquiry_count_list_in_Car,
+            data: booking_count_list_in_Car,
             backgroundColor : ['#8f251f', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#894e9c', '#0b523a', '#a1156d', '#9e4603'],
           }
         ]
@@ -290,13 +293,13 @@
 
       
 
-         //- BAR CHART - Inquiry Attendance & Leave Overview //
-      var Inquiry_attendance_present_list = {{ Inquiry_attendance_present_list }};
-      var Inquiry_attendance_leave_list = {{ Inquiry_attendance_leave_list }};
-      var Inquiry_name_list = {{ Inquiry_name_list|safe }};
+         //- BAR CHART - booking trips & Leave Overview //
+      var booking_trips_present_list = {{ booking_trips_present_list }};
+      var booking_trips_leave_list = {{ booking_trips_leave_list }};
+      var booking_name_list = {{ booking_name_list|safe }};
 
       var areaChartData2 = {
-        labels  : Inquiry_name_list,
+        labels  : booking_name_list,
         datasets: [
           {
             label               : 'Absent/Leave',
@@ -307,10 +310,10 @@
             pointStrokeColor    : 'rgba(60,141,188,1)',
             pointHighlightFill  : '#fff',
             pointHighlightStroke: 'rgba(60,141,188,1)',
-            data                : Inquiry_attendance_leave_list 
+            data                : booking_trips_leave_list 
           },
           {
-            label               : 'Attendance',
+            label               : 'trips',
             backgroundColor     : '#5a615c',
             borderColor         : 'rgba(210, 214, 222, 1)',
             pointRadius         : false,
@@ -318,7 +321,7 @@
             pointStrokeColor    : '#c1c7d1',
             pointHighlightFill  : '#fff',
             pointHighlightStroke: 'rgba(220,220,220,1)',
-            data                : Inquiry_attendance_present_list
+            data                : booking_trips_present_list
           },
         ]
       }
@@ -344,15 +347,15 @@
       })
       
 
-      // Total inquiries in Each role
+      // Total bookings in Each role
       //var donutChartCanvas = $('#pieChart2').get(0).getContext('2d')
       var role_name_list = {{ role_name_list|safe }}
-      var Inquiry_count_list_in_role = {{ Inquiry_count_list_in_role }}
+      var booking_count_list_in_role = {{ booking_count_list_in_role }}
       var pieData2 = {
         labels: role_name_list,
         datasets: [
           {
-            data: Inquiry_count_list_in_role,
+            data: booking_count_list_in_role,
             backgroundColor : ['#cc0404', '#00a65a', '#f39c12', '#00A4BD', '#045c8f', '#894e9c', '#9e4603', '#71bfb2'],
           }
         ]
@@ -374,8 +377,23 @@
         data: pieData2,
         options: pieOptions2      
       })
-      
-      
-      })
+      var marqueeImages = document.querySelectorAll('.marquee img');
+            var imageWidth = 0;
+            marqueeImages.forEach(function(image) {
+                imageWidth += image.width;
+            });
+            var marqueeContainer = document.querySelector('.marquee');
+            marqueeContainer.style.width = imageWidth + 'px';
+
+            function animateMarquee() {
+                var animation = marqueeContainer.animate([
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(-' + imageWidth + 'px)' }
+                ], {
+                    duration: 10000,
+                    iterations: Infinity
+                });
+            }
+            animateMarquee();
   </script>
 {% endblock custom_js %}

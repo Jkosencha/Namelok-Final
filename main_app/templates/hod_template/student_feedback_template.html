@@ -18,7 +18,7 @@
                         <table class="table table-bordered table-hover">
                             <tr>
                                 <th>#</th>
-                                <th>Inquiry</th>
+                                <th>booking</th>
                                 <th>Season</th>
                                 <th>Message</th>
                                 <th>Sent On</th>
@@ -29,8 +29,8 @@
                             {% for feedback in  feedbacks %}
                               <tr>
                                   <td>{{forloop.counter}}</td>
-                                  <td>{{feedback.Inquiry}}</td>
-                                  <td>{{feedback.Inquiry.Season}}</td>
+                                  <td>{{feedback.booking}}</td>
+                                  <td>{{feedback.booking.Season}}</td>
                                   <td>{{feedback.feedback}}</td>
                                  
                                       
@@ -110,7 +110,7 @@
                 var reply = $("#reply_message").val()
 
                 $.ajax({
-                    url: "{% url 'Inquiry_feedback_message' %}",
+                    url: "{% url 'booking_feedback_message' %}",
                     type:'POST',
                     data:{
                           id:id,

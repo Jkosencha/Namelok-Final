@@ -1,0 +1,139 @@
+{% extends 'main_app/landing_base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+{% block content %}
+<section class="content" style="background-color: #52260d; color: aliceblue;">
+    <div class="container-fluid">
+        <div class="text-center">
+            <h1>Namelok Tour and Travel CRM</h1>
+        </div>
+      <!-- Marquee section -->
+      <div class="marquee">
+        <img class="hero-image" src="{% static 'dist/img/image1.jpg' %}" height="200" width="360" alt="Image 1">
+        <img class="hero-image" src="{% static 'dist/img/image3.jpg' %}" height="200" width="450" alt="Image 2">
+        <img class="hero-image" src="{% static 'dist/img/image4.jpg' %}" height="200" width="360" alt="Image 3">
+    </div>
+    <br>
+    <br>
+    <div class="row justify-content-center mt-3">
+        <div class="col-lg-6 text-center">
+            <a href="{% url 'login_page' %}" class="btn btn-primary btn-lg">Login</a>
+            <a href="{% url 'login_page' %}" class="btn btn-success btn-lg">Sign Up</a>
+        </div>
+        </div>
+    <br>
+    <br>
+    <!-- Available Season Trips -->
+    <div>
+      <h1><I>Available trips</I></h1>
+    </div>
+    <div class="row mt-3" style="color: black;">
+        <!-- Card 1 -->
+        <div class="col-lg-4">
+            <div class="card">
+                <img class="card-img-top" src="{% static 'dist/img/package1.jpg' %}" height="200" alt="Trip 1">
+                <div class="card-body">
+                    <h5 class="card-title">Trip 1</h5>
+                    <p class="card-text">Location: Kilimanjaro</p>
+                    <p class="card-text">Price: Ksh 30000</p>
+                    <a href="#" class="btn btn-primary">Agent Bid</a>
+                </div>
+            </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="col-lg-4">
+            <div class="card">
+                <img class="card-img-top" src="{% static 'dist/img/package2.jpg' %}" height="200" alt="Trip 2">
+                <div class="card-body">
+                    <h5 class="card-title">Trip 2</h5>
+                    <p class="card-text">Location: Serengeti</p>
+                    <p class="card-text">Price: Ksh 56500</p>
+                    <a href="#" class="btn btn-primary">Agent Bid</a>
+                </div>
+            </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="col-lg-4">
+            <div class="card">
+                <img class="card-img-top" src="{% static 'dist/img/package3.jpg' %}" height="200" alt="Trip 3">
+                <div class="card-body">
+                    <h5 class="card-title">Trip 3</h5>
+                    <p class="card-text">Location: Zanzibar</p>
+                    <p class="card-text">Price: Ksh 43120</p>
+                    <a href="#" class="btn btn-primary">Agent Bid</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3" style="color: black;">
+      <!-- Card 1 -->
+      <div class="col-lg-4">
+          <div class="card">
+              <img class="card-img-top" src="{% static 'dist/img/package4.jpg' %}" height="200" alt="Trip 4">
+              <div class="card-body">
+                  <h5 class="card-title">Trip 4</h5>
+                  <p class="card-text">Location: International Tours</p>
+                  <p class="card-text">Price: Ksh 300000</p>
+                  <a href="#" class="btn btn-primary">Agent Bid</a>
+              </div>
+          </div>
+      </div>
+      <!-- Card 2 -->
+      <div class="col-lg-4">
+          <div class="card">
+              <img class="card-img-top" src="{% static 'dist/img/package5.jpg' %}" height="200" alt="Trip 5">
+              <div class="card-body">
+                  <h5 class="card-title">Trip 5</h5>
+                  <p class="card-text">Location: Maasai Mara</p>
+                  <p class="card-text">Price: Ksh 20500</p>
+                  <a href="#" class="btn btn-primary">Agent Bid</a>
+              </div>
+          </div>
+      </div>
+      <!-- Card 3 -->
+      <div class="col-lg-4">
+          <div class="card">
+              <img class="card-img-top" src="{% static 'dist/img/package6.webp' %}" height="200" alt="Trip 6">
+              <div class="card-body">
+                  <h5 class="card-title">Trip 6</h5>
+                  <p class="card-text">Location: Tsavo</p>
+                  <p class="card-text">Price: Ksh 12000</p>
+                  <a href="#" class="btn btn-primary">Agent Bid</a>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="row mt-3">
+    <div class="col-lg-6">
+        <h2>Vision</h2>
+        <p>To become the leading provider of cutting-edge software solutions for the global travel industry, 
+            recognized for our commitment to excellence, innovation, and customer satisfaction</p>
+    </div>
+    <div class="col-lg-6">
+        <h2>Mission</h2>
+        <p>To revolutionize the travel industry through innovative software solutions that streamline operations, 
+            enhance customer experiences, and empower travel agencies to thrive in a digital world</p>
+    </div>
+</div>
+
+ <!-- About Us section -->
+ <div class="about-section">
+  <h2>About Us</h2>
+  <p>Welcome to Namelok Tours and Travel, your premier destination for innovative travel solutions. Founded with a passion for transforming the travel industry, Namelok is committed to providing cutting-edge software solutions that streamline operations, enhance customer experiences, and empower travel agencies to thrive in a digital world.
+    At Namelok, we understand the challenges and complexities of the travel business. That's why we've dedicated ourselves to developing intuitive, user-friendly software that meets the evolving needs of travel agencies, tour operators, and travelers alike.
+    Our team of experienced professionals brings together expertise in software development, travel industry knowledge, and a relentless pursuit of excellence. We work tirelessly to deliver solutions that not only meet but exceed the expectations of our clients.
+    Whether you're a small travel agency looking to automate your processes, a tour operator seeking to expand your online presence, or a traveler in search of seamless booking experiences, Namelok is here for you. Our comprehensive suite of software products caters to every aspect of the travel industry, from booking and reservation management to customer relationship management and beyond.</p>
+</div>
+
+<!-- Contact Us Section -->
+<div class="contact-section mt-3">
+    <h2>Contact Us</h2>
+    <p>0704239554 <br> nameloktours@gmail.com</p>
+</div>
+
+
+</div>
+</section>
+
+{% endblock content %}

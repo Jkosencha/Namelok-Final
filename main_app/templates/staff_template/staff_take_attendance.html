@@ -42,8 +42,8 @@
                         {% comment %}
 
                         <div>
-                            <label>Attendance Date</label>
-                            <input type="date" class='form-control' name="attendance_date" id='attendance_date' id="">
+                            <label>trips Date</label>
+                            <input type="date" class='form-control' name="trips_date" id='trips_date' id="">
                         </div>
                         {% endcomment %}
 
@@ -51,8 +51,8 @@
                     <!-- /.card-body -->
 
                     <div class="card-footer">
-                        <button type="button" id='fetch_Inquiry' class="btn btn-success btn-block">Fetch inquiries</button>
-                        <div class="form-group" id="Inquiry_data">
+                        <button type="button" id='fetch_booking' class="btn btn-success btn-block">Fetch bookings</button>
+                        <div class="form-group" id="booking_data">
 
                         </div>
                     </div>
@@ -71,16 +71,16 @@
     $(document).ready(function () {
 
        
-        $("#fetch_Inquiry").click(function () {
+        $("#fetch_booking").click(function () {
             var Car = $("#Car").val()
             var Season = $("#Season").val()
-            $("#Inquiry_data").html(null)
+            $("#booking_data").html(null)
 if (Car.length  == 0 || Season.length == 0){
     alert("Please select Season and Car");
     return false;
 }
             $.ajax({
-                url: "{% url 'get_inquiries' %}",
+                url: "{% url 'get_bookings' %}",
                 type: 'POST',
                 data: {
                     Car: Car,
@@ -91,24 +91,24 @@ if (Car.length  == 0 || Season.length == 0){
                 if (json_data.length < 1) {
                     alert("No data to display")
                 } else {
-                    var div_data = "<hr/><div class='form-group'></div><div class='form-group'> <label>Attendance Date</label><input type='date' class='form-control' name='attendance_date' id='attendance_date' ><div class='row'>"
+                    var div_data = "<hr/><div class='form-group'></div><div class='form-group'> <label>trips Date</label><input type='date' class='form-control' name='trips_date' id='trips_date' ><div class='row'>"
 
                     for (key in json_data) {
-                        div_data += "<div class='col-lg-3'><div class='form-check custom-control custom-checkbox'><input type='checkbox' class='custom-control-input' checked='checked' name='Inquiry_data[]' value=" + json_data[key]['id'] + " id='checkbox" + json_data[key]['id'] + "' /> <label for='checkbox" + json_data[key]['id'] + "' class='custom-control-label'>" + json_data[key]['name'] + "</label></div> </div>"
+                        div_data += "<div class='col-lg-3'><div class='form-check custom-control custom-checkbox'><input type='checkbox' class='custom-control-input' checked='checked' name='booking_data[]' value=" + json_data[key]['id'] + " id='checkbox" + json_data[key]['id'] + "' /> <label for='checkbox" + json_data[key]['id'] + "' class='custom-control-label'>" + json_data[key]['name'] + "</label></div> </div>"
                     }
                     div_data += "</div></div>"
-                    div_data += "<div class='form-group'><button id='save_attendance' class='btn btn-success' type='button'>Save Attendance</button></div>"
-                    $("#Inquiry_data").html(div_data)
+                    div_data += "<div class='form-group'><button id='save_trips' class='btn btn-success' type='button'>Save trips</button></div>"
+                    $("#booking_data").html(div_data)
                 }
             }).fail(function (response) {
-                alert("Error in fetching inquiries")
+                alert("Error in fetching bookings")
             })
 
 
-            $(document).on('click', '#save_attendance', function () {
+            $(document).on('click', '#save_trips', function () {
                 $(this).attr("disabled","disabled")
-                $(this).text("Saving Attendance Data...")
-                var Inquiry_data = $("input[name='Inquiry_data[]']").map(function () {
+                $(this).text("Saving trips Data...")
+                var booking_data = $("input[name='booking_data[]']").map(function () {
                     if ($(this).is(":checked")){
                     return {'id':$(this).val(), 'status': 1};
     
@@ -116,18 +116,18 @@ if (Car.length  == 0 || Season.length == 0){
                     return {'id':$(this).val(), 'status': 0};
     
                 }).get()
-                var attendance_date = $('#attendance_date').val()
-                if (attendance_date.length < 10){
+                var trips_date = $('#trips_date').val()
+                if (trips_date.length < 10){
                     alert("Select date")
                     return false;
                 }
-                Inquiry_data = JSON.stringify(Inquiry_data)
+                booking_data = JSON.stringify(booking_data)
                 $.ajax({
-                    url: "{% url 'save_attendance' %}",
+                    url: "{% url 'save_trips' %}",
                     type: 'POST',
                     data: {
-                        date: attendance_date,
-                        Inquiry_ids: Inquiry_data,
+                        date: trips_date,
+                        booking_ids: booking_data,
                         Car: Car,
                         Season: Season
             
@@ -141,7 +141,7 @@ if (Car.length  == 0 || Season.length == 0){
                     location.reload()
                     
                 }).fail(function (response) {
-                    alert("Error in saving attendance")
+                    alert("Error in saving trips")
                 })
     
             })

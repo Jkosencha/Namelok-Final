@@ -37,30 +37,30 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="form-group"><div  style="display: none;" class="alert alert-danger" id='error_attendance'></div>
-                                <div class="alert alert-success" id='success_attendance' style="display: none;"></div>
-                             <button type="button" id='fetch_attendance' class="btn btn-success btn-block">Fetch Attendance</button>
+                        <div class="form-group"><div  style="display: none;" class="alert alert-danger" id='error_trips'></div>
+                                <div class="alert alert-success" id='success_trips' style="display: none;"></div>
+                             <button type="button" id='fetch_trips' class="btn btn-success btn-block">Fetch trips</button>
                         </div>
                     <!-- /.card-body -->
                     
                         
                                
-                            <div class="form-group" style="display: none;" id="attendance_block">
+                            <div class="form-group" style="display: none;" id="trips_block">
                             <div class="form-group">
-                                <label>Attendance Date</label>
-                                <select name="attendance_date" id='attendance_date' class="form-control">
+                                <label>trips Date</label>
+                                <select name="trips_date" id='trips_date' class="form-control">
                                
                                 </select>
                             </div>
                             <div class="form-group">
                                 
-                            <div id="fetch_Inquiry_block" style="display: none;">
-                                <button type="button" id='fetch_Inquiry' class="btn btn-success btn-block">Fetch inquiries</button>
+                            <div id="fetch_booking_block" style="display: none;">
+                                <button type="button" id='fetch_booking' class="btn btn-success btn-block">Fetch bookings</button>
 
-                            <!-- <button style="display: none;" type="button" id='save_attendance' class="btn btn-primary btn-block">Save Data</button> -->
+                            <!-- <button style="display: none;" type="button" id='save_trips' class="btn btn-primary btn-block">Save Data</button> -->
 
                             </div>
-                            <div id='Inquiry_data' class="card-footer">
+                            <div id='booking_data' class="card-footer">
 
                             </div>
                         </div>
@@ -78,17 +78,17 @@
 {% block custom_js %}
 <script>
     $(document).ready(function () {
-        $("#fetch_attendance").click(function(){
+        $("#fetch_trips").click(function(){
             var Car = $("#Car").val()
             var Season = $("#Season").val()
             if (Season.length < 1 || Car.length < 1){
-                $("#error_attendance").html("Kindly Choose Both Car and Season")
-                $("#attendance_block").hide()
-                $("#error_attendance").show()
+                $("#error_trips").html("Kindly Choose Both Car and Season")
+                $("#trips_block").hide()
+                $("#error_trips").show()
                 return false
             }
             $.ajax({
-                url: "{% url 'get_attendance' %}",
+                url: "{% url 'get_trips' %}",
                 type: 'POST',
                 data:{
                     Car:Car,
@@ -103,73 +103,73 @@
 
                     var html = "";
                     for (key in json_data){
-                        html += "<option value='"+json_data[key]['id']+"'>"+json_data[key]['attendance_date']+"</option>"
+                        html += "<option value='"+json_data[key]['id']+"'>"+json_data[key]['trips_date']+"</option>"
                     }
-                    $("#attendance_date").html(html)
-                    $("#error_attendance").hide()
-                    $("#error_attendance").html("")
-                    $("#attendance_block").show()  
-                    $("#fetch_Inquiry_block").show()
+                    $("#trips_date").html(html)
+                    $("#error_trips").hide()
+                    $("#error_trips").html("")
+                    $("#trips_block").show()  
+                    $("#fetch_booking_block").show()
                 }else{
-                    $("#error_attendance").html("No Attendance Date Found For Specified Data")
-                    $("#error_attendance").show()
-                    $("#attendance_date").html("")
-                    $("#attendance_block").hide()
+                    $("#error_trips").html("No trips Date Found For Specified Data")
+                    $("#error_trips").show()
+                    $("#trips_date").html("")
+                    $("#trips_block").hide()
 
 
                 }
             }).fail(function(response){
                 alert("Error While Fetching Data")
-                $("#error_attendance").html("")
-                $("#error_attendance").show()
-                $("#attendance_block").hide()
+                $("#error_trips").html("")
+                $("#error_trips").show()
+                $("#trips_block").hide()
 
 
             })
         })
 
-        $("#fetch_Inquiry").click(function () {
-            var attendance_date = $("#attendance_date").val()
-            $("#Inquiry_data").html(null)
-if (attendance_date.length  == 0){
+        $("#fetch_booking").click(function () {
+            var trips_date = $("#trips_date").val()
+            $("#booking_data").html(null)
+if (trips_date.length  == 0){
     alert("Please Choose A Date");
-    $("#save_attendance").hide()
+    $("#save_trips").hide()
 
     return false;
 }
             $.ajax({
-                url: "{% url 'get_Inquiry_attendance' %}",
+                url: "{% url 'get_booking_trips' %}",
                 type: 'POST',
                 data: {
-                    attendance_date_id:attendance_date,
+                    trips_date_id:trips_date,
                 }
             }).done(function (response) {
                 var json_data = JSON.parse(response)
                 if (json_data.length < 1) {
                     alert("No data to display")
-            $("#save_attendance").hide()
+            $("#save_trips").hide()
 
                 } else {
-            $("#save_attendance").show()
+            $("#save_trips").show()
 
-                    var div_data = "<hr/><div class='form-group'></div><div class='form-group'> <label>Inquiry Attendance</label><div class='row'>"
+                    var div_data = "<hr/><div class='form-group'></div><div class='form-group'> <label>booking trips</label><div class='row'>"
 
                     for (key in json_data) {
-                        div_data += "<div class='col-lg-3'><div class='form-check custom-control custom-checkbox'><input type='checkbox' class='custom-control-input' " + (json_data[key]['status'] ? "checked='checked'" : "")+" name='Inquiry_data[]' value=" + json_data[key]['id'] + " id='checkbox" + json_data[key]['id'] + "' /> <label for='checkbox" + json_data[key]['id'] + "' class='custom-control-label'>" + json_data[key]['name']  + (json_data[key]['status'] ? " [Present] " : " [Absent] ")+"</label></div> </div>"
+                        div_data += "<div class='col-lg-3'><div class='form-check custom-control custom-checkbox'><input type='checkbox' class='custom-control-input' " + (json_data[key]['status'] ? "checked='checked'" : "")+" name='booking_data[]' value=" + json_data[key]['id'] + " id='checkbox" + json_data[key]['id'] + "' /> <label for='checkbox" + json_data[key]['id'] + "' class='custom-control-label'>" + json_data[key]['name']  + (json_data[key]['status'] ? " [Present] " : " [Absent] ")+"</label></div> </div>"
                     }
                     div_data += "</div></div>"
-                    div_data += "<div class='form-group'><button id='save_attendance' class='btn btn-success' type='button'>Save Attendance</button></div>"
-                    $("#Inquiry_data").html(div_data)
+                    div_data += "<div class='form-group'><button id='save_trips' class='btn btn-success' type='button'>Save trips</button></div>"
+                    $("#booking_data").html(div_data)
                 }
             }).fail(function (response) {
-                alert("Error in fetching inquiries")
+                alert("Error in fetching bookings")
             })
 
         })
-        $(document).on('click', '#save_attendance', function () {
+        $(document).on('click', '#save_trips', function () {
             //$(this).attr("disabled","disabled")
-            $(this).text("Updating Attendance Data...")
-            var Inquiry_data = $("input[name='Inquiry_data[]']").map(function () {
+            $(this).text("Updating trips Data...")
+            var booking_data = $("input[name='booking_data[]']").map(function () {
                 if ($(this).is(":checked")){
                 return {'id':$(this).val(), 'status': 1};
 
@@ -178,14 +178,14 @@ if (attendance_date.length  == 0){
 
             }).get()
       
-            Inquiry_data = JSON.stringify(Inquiry_data)
-            var attendance_date = $("#attendance_date").val()
+            booking_data = JSON.stringify(booking_data)
+            var trips_date = $("#trips_date").val()
             $.ajax({
-                url: "{% url 'update_attendance' %}",
+                url: "{% url 'update_trips' %}",
                 type: 'POST',
                 data: {
-                    date: attendance_date,
-                    Inquiry_ids: Inquiry_data,
+                    date: trips_date,
+                    booking_ids: booking_data,
                 }
             }).done(function (response) {
                 if (response == 'OK'){
@@ -196,7 +196,7 @@ if (attendance_date.length  == 0){
                 location.reload()
                 
             }).fail(function (response) {
-                alert("Error in saving attendance")
+                alert("Error in saving trips")
             })
 
         })

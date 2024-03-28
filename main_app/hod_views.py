@@ -2,6 +2,7 @@ import json
 import requests
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import (HttpResponse, HttpResponseRedirect,
                               get_object_or_404, redirect, render)
@@ -9,84 +10,106 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import UpdateView
-
-from main_app import inquiry_views
+from .models import Role, Trips, Staff, booking, CustomUser 
+from django.db import transaction
+from .forms import BookingForm
 
 from .forms import *
 from .models import *
 
 
+# def admin_home(request):
+#     total_staff = Staff.objects.all().count()
+#     total_bookings = booking.objects.all().count()
+#     all_Cars = Car.objects.all()
+#     total_Car = all_Cars.count()
+#     total_role = Role.objects.all().count()
+#     trips_list = Trips.objects.filter(car__in=all_Cars)
+#     total_trips = trips_list.count()
+#     # trips_list = []
+#     Car_list = []
+#     for car_instance in all_Cars:
+#         role = role.objects.get(id=car_instance.role.id)
+#         booking_count = booking.objects.filter(role_id=role.id).count()
+#         Car_list.append(car_instance.name)
+#         booking_count_list_in_Car.append(booking_count)
+
 def admin_home(request):
     total_staff = Staff.objects.all().count()
-    total_inquiries = Inquiry.objects.all().count()
+    total_bookings = booking.objects.all().count()
     all_Cars = Car.objects.all()
     total_Car = all_Cars.count()
     total_role = Role.objects.all().count()
-    attendance_list = Attendance.objects.filter(Car__in=all_Cars)
-    total_attendance = attendance_list.count()
-    attendance_list = []
-    Car_list = []
-    for car_instance in all_Cars:
-        attendance_count = Attendance.objects.filter(Car=car_instance).count()
-        Car_list.append(car_instance.name[:7])
-        attendance_list.append(attendance_count)
+    trips_list = Trips.objects.filter(car__in=all_Cars)
+    total_trips = trips_list.count()
 
-    # Total Cars and inquiries in Each role
+    Car_list = []
+    booking_count_list_in_Car = []  # Initialize the list to store booking counts
+    
+    for car_instance in all_Cars:
+         role = Role.objects.get(id=car_instance.role.id)
+         booking_count = booking.objects.filter(role_id=role.id).count()
+         Car_list.append(car_instance.name)
+         booking_count_list_in_Car.append(booking_count)
+
+
+    # Total Cars and bookings for each staff
     all_roles = Role.objects.all()
     role_name_list = []
     Car_count_list = []
-    inquiry_count_list_in_role = []
+    booking_count_list_in_role = []
 
     for role in all_roles:
         Cars = Car.objects.filter(role_id=role.id).count()
-        inquiries = Inquiry.objects.filter(role_id=role.id).count()
+        bookings = booking.objects.filter(role_id=role.id).count()
         role_name_list.append(role.name)
         Car_count_list.append(Cars)
-        inquiry_count_list_in_role.append(inquiries)
+        booking_count_list_in_role.append(bookings)
     
     all_Cars = Car.objects.all()
     Car_list = []
-    inquiry_count_list_in_Car = []
+    booking_count_list_in_Car = []
     for car_instance in all_Cars:
-        role = role.objects.get(id=car_instance.role.id)
-        inquiry_count = Inquiry.objects.filter(role_id=role.id).count()
+        role = Role.objects.get(id=car_instance.role.id)
+        booking_count = booking.objects.filter(role_id=role.id).count()
         Car_list.append(car_instance.name)
-        inquiry_count_list_in_Car.append(inquiry_count)
+        booking_count_list_in_Car.append(booking_count)
 
 
 
-    # For inquiries
-    inquiry_attendance_present_list = []
-    inquiry_attendance_leave_list = []
-    inquiry_name_list = []
+    # For bookings
+    booking_trips_present_list = []
+    booking_trips_leave_list = []
+    booking_name_list = []
 
-    inquiries = Inquiry.objects.all()
-    for inquiry in inquiries:
+    bookings = booking.objects.all()
+    for booking_instance in bookings:
         
-        attendance = AttendanceReport.objects.filter(inquiry_id=inquiry.id, status=True).count()
-        absent = AttendanceReport.objects.filter(inquiry_id=inquiry.id, status=False).count()
-        leave = LeaveReportInquiry.objects.filter(inquiry_id=inquiry.id, status=1).count()
-        inquiry_attendance_present_list.append(attendance)
-        inquiry_attendance_leave_list.append(leave + absent)
-        inquiry_name_list.append(inquiry.admin.first_name)
+        trips = tripsReport.objects.filter(booking_id=booking_instance.id, status=True).count()
+        absent = tripsReport.objects.filter(booking_id=booking_instance.id, status=False).count()
+        leave = LeaveReportbooking.objects.filter(booking_id=booking_instance.id, status=1).count()
+        booking_trips_present_list.append(trips)
+        booking_trips_leave_list.append(leave + absent)
+        booking_name_list.append(booking_instance.admin.first_name)
 
     context = {
-        'page_title': "Administrative Dashboard",
-        'total_inquiries': total_inquiries,
+        'page_title': "Staff Dashboard",
+        'total_bookings': total_bookings,
         'total_staff': total_staff,
         'total_role': total_role,
         'total_Car': total_Car,
         'Car_list': Car_list,
-        'attendance_list': attendance_list,
-        'inquiry_attendance_present_list': inquiry_attendance_present_list,
-        'inquiry_attendance_leave_list': inquiry_attendance_leave_list,
-        "inquiry_name_list": inquiry_name_list,
-        "inquiry_count_list_in_Car": inquiry_count_list_in_Car,
-        "inquiry_count_list_in_role": inquiry_count_list_in_role,
+        'trips_list': trips_list,
+        'booking_trips_present_list': booking_trips_present_list,
+        'booking_trips_leave_list': booking_trips_leave_list,
+        "booking_name_list": booking_name_list,
+        "booking_count_list_in_Car": booking_count_list_in_Car,
+        "booking_count_list_in_role": booking_count_list_in_role,
         "role_name_list": role_name_list,
-
     }
     return render(request, 'hod_template/home_content.html', context)
+
+
 
 
 
@@ -100,97 +123,75 @@ def add_staff(request):
             address = form.cleaned_data.get('address')
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
-            password = form.cleaned_data.get('password')
             role = form.cleaned_data.get('role')
             passport = request.FILES.get('profile_pic')
             fs = FileSystemStorage()
             filename = fs.save(passport.name, passport)
             passport_url = fs.url(filename)
             try:
+                # Create CustomUser instance
                 user = CustomUser.objects.create_user(
-                    email=email, password=password, user_type=2, first_name=first_name, last_name=last_name, profile_pic=passport_url)
+                    email=email, user_type=2, first_name=first_name, last_name=last_name, profile_pic=passport_url)
                 user.gender = gender
                 user.address = address
-                user.staff.role = role
+                
+                # Save the user instance
                 user.save()
+
+                # Create Staff instance
+                staff = Staff.objects.create(name=f"{user.last_name} {user.first_name}", role=role, admin=user)
+                
                 messages.success(request, "Successfully Added")
                 return redirect(reverse('add_staff'))
-
             except Exception as e:
-                messages.error(request, "Could Not Add " + str(e))
+                messages.error(request, "Could Not Add: " + str(e))
         else:
-            messages.error(request, "Please fulfil all requirements")
+            messages.error(request, "Please fulfill all requirements")
 
     return render(request, 'hod_template/add_staff_template.html', context)
 
-
-def add_Inquiry(request):
-    Inquiry_form = InquiryForm(request.POST or None, request.FILES or None)
-    context = {'form': Inquiry_form, 'page_title': 'Add Inquiry'}
+def add_booking(request):
     if request.method == 'POST':
-        if Inquiry_form.is_valid():
-            first_name = Inquiry_form.cleaned_data.get('first_name')
-            last_name = Inquiry_form.cleaned_data.get('last_name')
-            address = Inquiry_form.cleaned_data.get('address')
-            email = Inquiry_form.cleaned_data.get('email')
-            gender = Inquiry_form.cleaned_data.get('gender')
-            password = Inquiry_form.cleaned_data.get('password')
-            role = Inquiry_form.cleaned_data.get('role')
-            Season = Inquiry_form.cleaned_data.get('Season')
-            passport = request.FILES['profile_pic']
-            fs = FileSystemStorage()
-            filename = fs.save(passport.name, passport)
-            passport_url = fs.url(filename)
+        booking_form = BookingForm(request.POST, request.FILES)
+        if booking_form.is_valid():
+            # Extract form data
+            first_name = booking_form.cleaned_data.get('first_name')
+            last_name = booking_form.cleaned_data.get('last_name')
+            email = booking_form.cleaned_data.get('email')
+            gender = booking_form.cleaned_data.get('gender')
+            role = booking_form.cleaned_data.get('role')
+            season = booking_form.cleaned_data.get('Season')
+            profile_pic = request.FILES.get('profile_pic')
+
             try:
+                # Create CustomUser instance
                 user = CustomUser.objects.create_user(
-                    email=email, password=password, user_type=3, first_name=first_name, last_name=last_name, profile_pic=passport_url)
-                user.gender = gender
-                user.address = address
-                user.Inquiry.Season = Season
-                user.Inquiry.role = role
-                user.save()
-                messages.success(request, "Successfully Added")
-                return redirect(reverse('add_Inquiry'))
+                    email=email,
+                    user_type=3,
+                    first_name=first_name,
+                    last_name=last_name,
+                    gender=gender,
+                    profile_pic=profile_pic
+                )
+
+                # Create Booking instance and associate with user
+                booking_instance = booking.objects.create(
+                    user=user,  # Associate the booking with the created user
+                    role=role,
+                    season=season
+                )
+
+                messages.success(request, "Booking added successfully")
+                return redirect('add_booking')
             except Exception as e:
-                messages.error(request, "Could Not Add: " + str(e))
+                messages.error(request, f"Could not add booking: {e}")
         else:
-            messages.error(request, "Could Not Add: ")
-    return render(request, 'hod_template/add_Inquiry_template.html', context)
+            messages.error(request, "Form is not valid")
+    else:
+        booking_form = BookingForm()
 
-def add_Booking(request):
-    Booking_form = BookingForm(request.POST or None, request.FILES or None)
-    context = {'form': Booking_form, 'page_title': 'Add Booking'}
-    if request.method == 'POST':
-        if Booking_form.is_valid():
-            first_name = Booking_form.cleaned_data.get('first_name')
-            last_name = Booking_form.cleaned_data.get('last_name')
-            address = Booking_form.cleaned_data.get('address')
-            email = Booking_form.cleaned_data.get('email')
-            gender = Booking_form.cleaned_data.get('gender')
-            car = Booking_form.cleaned_data.get('car')
-            Season = Booking_form.cleaned_data.get('Season')
-            passport = request.FILES['profile_pic']
-            fs = FileSystemStorage()
-            filename = fs.save(passport.name, passport)
-            passport_url = fs.url(filename)
-            try:
-                user = CustomUser.objects.create_user(
-                    email=email, user_type=3, first_name=first_name, last_name=last_name, profile_pic=passport_url)
-                user.gender = gender
-                user.address = address
-                user.Booking.Season = Season
-                user.Booking.car = car
-                user.save()
-                messages.success(request, "Successfully Added")
-                return redirect(reverse('add_Booking'))
-            except Exception as e:
-                messages.error(request, "Could Not Add: " + str(e))
-        else:
-            messages.error(request, "Could Not Add: ")
-    return render(request, 'hod_template/add_Booking_template.html', context)
-
-
-
+    context = {'form': booking_form, 'page_title': 'Add booking'}
+    return render(request, 'hod_template/add_booking_template.html', context)
 
 def add_role(request):
     form = roleForm(request.POST or None)
@@ -202,17 +203,20 @@ def add_role(request):
         if form.is_valid():
             name = form.cleaned_data.get('name')
             try:
-                role = role()
+                role = Role()  # Assuming Role is your model class for roles
                 role.name = name
                 role.save()
                 messages.success(request, "Successfully Added")
                 return redirect(reverse('add_role'))
-            except:
-                messages.error(request, "Could Not Add")
+            except Exception as e:
+                messages.error(request, f"Could Not Add: {str(e)}")
+                print(f"An error occurred: {str(e)}")
         else:
-            messages.error(request, "Could Not Add")
+            messages.error(request, "Form is invalid. Could Not Add")
     return render(request, 'hod_template/add_role_template.html', context)
 
+
+from .models import Car  # Import the Car model at the top of your views.py file
 
 def add_Car(request):
     form = CarForm(request.POST or None)
@@ -226,11 +230,11 @@ def add_Car(request):
             role = form.cleaned_data.get('role')
             staff = form.cleaned_data.get('staff')
             try:
-                Car = Car()
-                Car.name = name
-                Car.staff = staff
-                Car.role = role
-                Car.save()
+                car_instance = Car()  # Renamed variable to avoid conflict with model class name
+                car_instance.name = name
+                car_instance.staff = staff
+                car_instance.role = role
+                car_instance.save()
                 messages.success(request, "Successfully Added")
                 return redirect(reverse('add_Car'))
 
@@ -241,7 +245,6 @@ def add_Car(request):
 
     return render(request, 'hod_template/add_Car_template.html', context)
 
-
 def manage_staff(request):
     allStaff = CustomUser.objects.filter(user_type=2)
     context = {
@@ -251,21 +254,13 @@ def manage_staff(request):
     return render(request, "hod_template/manage_staff.html", context)
 
 
-def manage_Inquiry(request):
-    inquiries = CustomUser.objects.filter(user_type=3)
-    context = {
-        'inquiries': inquiries,
-        'page_title': 'Manage inquiries'
-    }
-    return render(request, "hod_template/manage_Inquiry.html", context)
-
-def manage_Booking(request):
+def manage_booking(request):
     bookings = CustomUser.objects.filter(user_type=3)
     context = {
         'bookings': bookings,
         'page_title': 'Manage bookings'
     }
-    return render(request, "hod_template/manage_Booking.html", context)
+    return render(request, "hod_template/manage_booking.html", context)
 
 
 def manage_role(request):
@@ -288,7 +283,8 @@ def manage_Car(request):
 
 def edit_staff(request, staff_id):
     staff = get_object_or_404(Staff, id=staff_id)
-    form = StaffForm(request.POST or None, instance=staff)
+    user = staff.user  # Access the associated user directly through the staff object
+    form = StaffForm(request.POST or None, request.FILES or None, instance=staff)
     context = {
         'form': form,
         'staff_id': staff_id,
@@ -296,22 +292,21 @@ def edit_staff(request, staff_id):
     }
     if request.method == 'POST':
         if form.is_valid():
+            # Extract form data
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
             address = form.cleaned_data.get('address')
             username = form.cleaned_data.get('username')
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
-            password = form.cleaned_data.get('password') or None
             role = form.cleaned_data.get('role')
-            passport = request.FILES.get('profile_pic') or None
+            passport = request.FILES.get('profile_pic')  # No need for "or None" here
+
             try:
-                user = CustomUser.objects.get(id=staff.admin.id)
+                # Update user fields
                 user.username = username
                 user.email = email
-                if password != None:
-                    user.set_password(password)
-                if passport != None:
+                if passport:  # Check if passport is provided
                     fs = FileSystemStorage()
                     filename = fs.save(passport.name, passport)
                     passport_url = fs.url(filename)
@@ -320,43 +315,45 @@ def edit_staff(request, staff_id):
                 user.last_name = last_name
                 user.gender = gender
                 user.address = address
-                staff.role = role
                 user.save()
+
+                # Update staff role
+                staff.role = role
                 staff.save()
+
                 messages.success(request, "Successfully Updated")
                 return redirect(reverse('edit_staff', args=[staff_id]))
             except Exception as e:
-                messages.error(request, "Could Not Update " + str(e))
+                messages.error(request, f"Could Not Update: {str(e)}")
         else:
-            messages.error(request, "Please fil form properly")
-    else:
-        user = CustomUser.objects.get(id=staff_id)
-        staff = Staff.objects.get(id=user.id)
-        return render(request, "hod_template/edit_staff_template.html", context)
+            messages.error(request, "Please fill the form properly")
+    
+    # If the request method is GET or the form is invalid, render the form page
+    return render(request, "hod_template/edit_staff_template.html", context)
 
 
-def edit_Inquiry(request, Inquiry_id):
-    Inquiry = get_object_or_404(Inquiry, id=Inquiry_id)
-    form = InquiryForm(request.POST or None, instance=Inquiry)
+
+def edit_booking(request, booking_id):
+    booking = get_object_or_404(booking, id=booking_id)
+    form = BookingForm(request.POST or None, instance=booking)
     context = {
         'form': form,
-        'Inquiry_id': Inquiry_id,
-        'page_title': 'Edit Inquiry'
+        'booking_id': booking_id,
+        'page_title': 'Edit booking'
     }
     if request.method == 'POST':
         if form.is_valid():
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
-            address = form.cleaned_data.get('address')
+            # address = form.cleaned_data.get('address')
             username = form.cleaned_data.get('username')
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
-            password = form.cleaned_data.get('password') or None
             role = form.cleaned_data.get('role')
             Season = form.cleaned_data.get('Season')
             passport = request.FILES.get('profile_pic') or None
             try:
-                user = CustomUser.objects.get(id=Inquiry.admin.id)
+                user = CustomUser.objects.get(id=booking.admin.id)
                 if passport != None:
                     fs = FileSystemStorage()
                     filename = fs.save(passport.name, passport)
@@ -364,29 +361,26 @@ def edit_Inquiry(request, Inquiry_id):
                     user.profile_pic = passport_url
                 user.username = username
                 user.email = email
-                if password != None:
-                    user.set_password(password)
                 user.first_name = first_name
                 user.last_name = last_name
-                Inquiry.Season = Season
+                booking.Season = Season
                 user.gender = gender
-                user.address = address
-                Inquiry.role = role
+                # user.address = address
+                booking.role = role
                 user.save()
-                Inquiry.save()
+                booking.save()
                 messages.success(request, "Successfully Updated")
-                return redirect(reverse('edit_Inquiry', args=[Inquiry_id]))
+                return redirect(reverse('edit_booking', args=[booking_id]))
             except Exception as e:
                 messages.error(request, "Could Not Update " + str(e))
         else:
             messages.error(request, "Please Fill Form Properly!")
     else:
-        return render(request, "hod_template/edit_Inquiry_template.html", context)
-
+        return render(request, "hod_template/edit_booking_template.html", context)
 
 def edit_role(request, role_id):
-    instance = get_object_or_404(role, id=role_id)
-    form = roleForm(request.POST or None, instance=instance)
+    instance = get_object_or_404(Role, id=role_id)
+    form = RoleForm(request.POST or None, instance=instance)  # Use RoleForm instead of roleForm
     context = {
         'form': form,
         'role_id': role_id,
@@ -396,17 +390,16 @@ def edit_role(request, role_id):
         if form.is_valid():
             name = form.cleaned_data.get('name')
             try:
-                role = role.objects.get(id=role_id)
-                role.name = name
-                role.save()
+                role_instance = instance
+                role_instance.name = name
+                role_instance.save()
                 messages.success(request, "Successfully Updated")
-            except:
-                messages.error(request, "Could Not Update")
+            except Exception as e:
+                messages.error(request, f"Could Not Update: {str(e)}")
         else:
             messages.error(request, "Could Not Update")
 
     return render(request, 'hod_template/edit_role_template.html', context)
-
 
 def edit_Car(request, Car_id):
     instance = get_object_or_404(Car, id=Car_id)
@@ -453,10 +446,9 @@ def add_Season(request):
 
 
 def manage_Season(request):
-    Season = Season.objects.all()
-    context = {'Season': Season, 'page_title': 'Manage Season'}
+    seasons = Season.objects.all()  
+    context = {'seasons': seasons, 'page_title': 'Manage Season'}  
     return render(request, "hod_template/manage_Season.html", context)
-
 
 def edit_Season(request, Season_id):
     instance = get_object_or_404(Season, id=Season_id)
@@ -494,18 +486,18 @@ def check_email_availability(request):
 
 
 @csrf_exempt
-def Inquiry_feedback_message(request):
+def booking_feedback_message(request):
     if request.method != 'POST':
-        feedbacks = FeedbackInquiry.objects.all()
+        feedbacks = Feedbackbooking.objects.all()
         context = {
             'feedbacks': feedbacks,
-            'page_title': 'Inquiry Feedback Messages'
+            'page_title': 'booking Feedback Messages'
         }
-        return render(request, 'hod_template/Inquiry_feedback_template.html', context)
+        return render(request, 'hod_template/booking_feedback_template.html', context)
     else:
         feedback_id = request.POST.get('id')
         try:
-            feedback = get_object_or_404(FeedbackInquiry, id=feedback_id)
+            feedback = get_object_or_404(Feedbackbooking, id=feedback_id)
             reply = request.POST.get('reply')
             feedback.reply = reply
             feedback.save()
@@ -561,59 +553,22 @@ def view_staff_leave(request):
 
 
 @csrf_exempt
-def view_Inquiry_leave(request):
-    if request.method != 'POST':
-        allLeave = LeaveReportInquiry.objects.all()
-        context = {
-            'allLeave': allLeave,
-            'page_title': 'Leave Applications From inquiries'
-        }
-        return render(request, "hod_template/Inquiry_leave_view.html", context)
-    else:
-        id = request.POST.get('id')
-        status = request.POST.get('status')
-        if (status == '1'):
-            status = 1
-        else:
-            status = -1
-        try:
-            leave = get_object_or_404(LeaveReportInquiry, id=id)
-            leave.status = status
-            leave.save()
-            return HttpResponse(True)
-        except Exception as e:
-            return False
-
-
-def admin_view_attendance(request):
-    Cars = Car.objects.all()
-    Season = Season.objects.all()
-    context = {
-        'Cars': Cars,
-        'Season': Season,
-        'page_title': 'View Attendance'
-    }
-
-    return render(request, "hod_template/admin_view_attendance.html", context)
-
-
-@csrf_exempt
-def get_admin_attendance(request):
+def get_admin_trips(request):
     Car_id = request.POST.get('Car')
     Season_id = request.POST.get('Season')
-    attendance_date_id = request.POST.get('attendance_date_id')
+    trips_date_id = request.POST.get('trips_date_id')
     try:
         Car = get_object_or_404(Car, id=Car_id)
         Season = get_object_or_404(Season, id=Season_id)
-        attendance = get_object_or_404(
-            Attendance, id=attendance_date_id, Season=Season)
-        attendance_reports = AttendanceReport.objects.filter(
-            attendance=attendance)
+        trips = get_object_or_404(
+            trips, id=trips_date_id, Season=Season)
+        trips_reports = tripsReport.objects.filter(
+            trips=trips)
         json_data = []
-        for report in attendance_reports:
+        for report in trips_reports:
             data = {
                 "status":  str(report.status),
-                "name": str(report.Inquiry)
+                "name": str(report.booking)
             }
             json_data.append(data)
         return JsonResponse(json.dumps(json_data), safe=False)
@@ -665,42 +620,6 @@ def admin_notify_staff(request):
     return render(request, "hod_template/staff_notification.html", context)
 
 
-def admin_notify_Inquiry(request):
-    Inquiry = CustomUser.objects.filter(user_type=3)
-    context = {
-        'page_title': "Send Notifications To inquiries",
-        'inquiries': Inquiry
-    }
-    return render(request, "hod_template/Inquiry_notification.html", context)
-
-
-@csrf_exempt
-def send_Inquiry_notification(request):
-    id = request.POST.get('id')
-    message = request.POST.get('message')
-    Inquiry = get_object_or_404(Inquiry, admin_id=id)
-    try:
-        url = "https://fcm.googleapis.com/fcm/send"
-        body = {
-            'notification': {
-                'title': "Inquiry Management System",
-                'body': message,
-                'click_action': reverse('Inquiry_view_notification'),
-                'icon': static('dist/img/AdminLTELogo.png')
-            },
-            'to': Inquiry.admin.fcm_token
-        }
-        headers = {'Authorization':
-                   'key=AAAA3Bm8j_M:APA91bElZlOLetwV696SoEtgzpJr2qbxBfxVBfDWFiopBWzfCfzQp2nRyC7_A2mlukZEHV4g1AmyC6P_HonvSkY2YyliKt5tT3fe_1lrKod2Daigzhb2xnYQMxUWjCAIQcUexAMPZePB',
-                   'Content-Type': 'application/json'}
-        data = requests.post(url, data=json.dumps(body), headers=headers)
-        notification = NotificationInquiry(Inquiry=Inquiry, message=message)
-        notification.save()
-        return HttpResponse("True")
-    except Exception as e:
-        return HttpResponse("False")
-
-
 @csrf_exempt
 def send_staff_notification(request):
     id = request.POST.get('id')
@@ -710,7 +629,7 @@ def send_staff_notification(request):
         url = "https://fcm.googleapis.com/fcm/send"
         body = {
             'notification': {
-                'title': "Inquiry Management System",
+                'title': "booking Management System",
                 'body': message,
                 'click_action': reverse('staff_view_notification'),
                 'icon': static('dist/img/AdminLTELogo.png')
@@ -735,27 +654,24 @@ def delete_staff(request, staff_id):
     return redirect(reverse('manage_staff'))
 
 
-def delete_Inquiry(request, Inquiry_id):
-    Inquiry = get_object_or_404(CustomUser, Inquiry__id=Inquiry_id)
-    Inquiry.delete()
-    messages.success(request, "Inquiry deleted successfully!")
-    return redirect(reverse('manage_Inquiry'))
+def delete_booking(request, booking_id):
+    booking = get_object_or_404(CustomUser, booking__id=booking_id)
+    booking.delete()
+    messages.success(request, "booking deleted successfully!")
+    return redirect(reverse('manage_booking'))
 
-def delete_Booking(request, Booking_id):
-    Booking = get_object_or_404(CustomUser, Boooking__id=Booking_id)
-    Booking.delete()
-    messages.success(request, "Booking deleted successfully!")
-    return redirect(reverse('manage_Booking'))
 
+from django.shortcuts import get_object_or_404
+from .models import Role
 
 def delete_role(request, role_id):
-    role = get_object_or_404(role, id=role_id)
+    role_instance = get_object_or_404(Role, id=role_id)
     try:
-        role.delete()
-        messages.success(request, "role deleted successfully!")
+        role_instance.delete()
+        messages.success(request, "Role deleted successfully!")
     except Exception:
         messages.error(
-            request, "Sorry, some inquiries are assigned to this role already. Kindly change the affected Inquiry role and try again")
+            request, "Sorry, some bookings are assigned to this user already. Kindly change the affected booking role and try again")
     return redirect(reverse('manage_role'))
 
 
@@ -773,5 +689,5 @@ def delete_Season(request, Season_id):
         messages.success(request, "Season deleted successfully!")
     except Exception:
         messages.error(
-            request, "There are inquiries assigned to this Season. Please move them to another Season.")
+            request, "There are bookings assigned to this Season. Please move them to another Season.")
     return redirect(reverse('manage_Season'))

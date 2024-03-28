@@ -43,9 +43,13 @@
                                         {% endif %}
                                     </td>
                                     <td>
+                                        {% if staff.staff.id %}
                                         <a href="{% url 'edit_staff' staff.staff.id %}" class="btn btn-info">Edit</a> - 
                                         <a href="{% url 'delete_staff' staff.staff.id %}" class="btn btn-danger" onclick="return confirm('Are you sure about this ?')">Delete</a>
-                                    
+                                    {% else %}
+                                        <!-- Handle missing staff ID -->
+                                        <span class="text-danger">Missing ID</span>
+                                    {% endif %}                                    
                                     </td>
                                 </tr>
                                 {% endfor %}

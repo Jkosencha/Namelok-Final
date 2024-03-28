@@ -5,19 +5,20 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
-from main_app.models import Season, BookingResult
-
+from main_app.models import Season
 
 from .EmailBackend import EmailBackend
-from .models import Attendance, Season, Car, Booking
+from .models import Trips, Season, Car, booking
 
 # Create your views here.
 
+def landing_page(request):
+    return render(request, 'main_app/landing_page.html')
 
 def login_page(request):
     if request.user.is_authenticated:
         if request.user.user_type == '1':
-            return redirect(reverse("admin_home"))
+            return redirect(reverse("login"))
         elif request.user.user_type == '2':
             return redirect(reverse("staff_home"))
         else:
@@ -29,24 +30,24 @@ def doLogin(request, **kwargs):
     if request.method != 'POST':
         return HttpResponse("<h4>Denied</h4>")
     else:
-        #Google recaptcha
-        captcha_token = request.POST.get('g-recaptcha-response')
-        captcha_url = "https://www.google.com/recaptcha/api/siteverify"
-        captcha_key = "6LfswtgZAAAAABX9gbLqe-d97qE2g1JP8oUYritJ"
-        data = {
-            'secret': captcha_key,
-            'response': captcha_token
-        }
-        # Make request
-        try:
-            captcha_server = requests.post(url=captcha_url, data=data)
-            response = json.loads(captcha_server.text)
-            if response['success'] == False:
-                messages.error(request, 'Invalid Captcha. Try Again')
-                return redirect('/')
-        except:
-            messages.error(request, 'Captcha could not be verified. Try Again')
-            return redirect('/')
+        # #Google recaptcha
+        # captcha_token = request.POST.get('g-recaptcha-response')
+        # captcha_url = "https://www.google.com/recaptcha/api/siteverify"
+        # captcha_key = "6LfswtgZAAAAABX9gbLqe-d97qE2g1JP8oUYritJ"
+        # data = {
+        #     'secret': captcha_key,
+        #     'response': captcha_token
+        # }
+        # # Make request
+        # try:
+        #     captcha_server = requests.post(url=captcha_url, data=data)
+        #     response = json.loads(captcha_server.text)
+        #     if response['success'] == False:
+        #         messages.error(request, 'Invalid Captcha. Try Again')
+        #         return redirect('/')
+        # except:
+        #     messages.error(request, 'Captcha could not be verified. Try Again')
+        #     return redirect('/')
         
         #Authenticate
         user = EmailBackend.authenticate(request, username=request.POST.get('email'), password=request.POST.get('password'))
@@ -57,7 +58,7 @@ def doLogin(request, **kwargs):
             elif user.user_type == '2':
                 return redirect(reverse("staff_home"))
             else:
-                return redirect(reverse("Inquiry_home"))
+                return redirect(reverse("booking_home"))
         else:
             messages.error(request, "Invalid details")
             return redirect("/")
@@ -71,64 +72,25 @@ def logout_user(request):
 
 
 @csrf_exempt
-def get_attendance(request):
+def get_trips(request):
     subject_id = request.POST.get('car')
     Season_id = request.POST.get('season')
     try:
         car = get_object_or_404(Car, id=subject_id)
         season = get_object_or_404(Season, id=Season_id)
-        attendance = Attendance.objects.filter(car=car, season=season)
-        attendance_list = []
-        for attd in attendance:
+        trips = trips.objects.filter(car=car, season=season)
+        trips_list = []
+        for attd in trips:
             data = {
                     "id": attd.id,
-                    "attendance_date": str(attd.date),
+                    "trips_date": str(attd.date),
                     "season": attd.season.id
                     }
-            attendance_list.append(data)
-        return JsonResponse(json.dumps(attendance_list), safe=False)
+            trips_list.append(data)
+        return JsonResponse(json.dumps(trips_list), safe=False)
     except Exception as e:
         return None
 
-@csrf_exempt
-def Booking_home(request):
-    bookings = Booking.objects.filter(admin=request.user)
-    context = {
-        'bookings': bookings,
-        'page_title': 'Booking Homepage'
-    }
-    return render(request, 'hod_template/add_booking_template.html', context)
-
-def Booking_result(request):
-    booking = get_object_or_404(Booking, admin=request.user)
-    results = BookingResult.objects.filter(booking=booking)
-    context = {
-        'results': results,
-        'page_title': "View Results"
-    }
-    return render(request, "hod_template/booking_result.html", context)
-
-def fetch_booking_result(request):
-    """
-    A view to fetch booking results and return as JSON response.
-    """
-    # Assuming you want to fetch all booking results for the current user
-    current_user = request.user
-    booking_results = BookingResult.objects.filter(booking__admin=current_user)
-    
-    # Serialize booking results into JSON format
-    results_data = []
-    for booking_result in booking_results:
-        result_data = {
-            'id': booking_result.id,
-            'first_name': booking_result.first_name,
-            'last_name': booking_result.last_name,
-            # Add other fields as needed
-        }
-        results_data.append(result_data)
-    
-    # Return JSON response
-    return JsonResponse({'booking_results': results_data})
 
 def showFirebaseJS(request):
     data = """

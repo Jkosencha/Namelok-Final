@@ -29998,4 +29998,13 @@ a.text-muted:hover {
 [class*="accent-"] a.btn-dark {
   color: #ffffff;
 }
+.marquee {
+  width: 100%;
+  overflow: hidden;
+}
+
+.hero-image {
+  /* Define your desired styles for the images here */
+  width: 200px; /* Example width */
+}
 /*# sourceMappingURL=adminlte.css.map */

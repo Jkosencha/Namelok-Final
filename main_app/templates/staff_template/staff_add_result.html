@@ -47,9 +47,9 @@
                     <!-- /.card-body -->
 
                     <div class="card-footer">
-                        <button type="button" id='fetch_Inquiry' class="btn btn-primary btn-block">Fetch
-                            inquiries</button>
-                        <div class="form-group" id="Inquiry_data">
+                        <button type="button" id='fetch_booking' class="btn btn-primary btn-block">Fetch
+                            bookings</button>
+                        <div class="form-group" id="booking_data">
 
                         </div>
                     </div>
@@ -69,16 +69,16 @@
     $(document).ready(function () {
 
        
-        $("#fetch_Inquiry").click(function () {
+        $("#fetch_booking").click(function () {
             var Car = $("#Car").val()
             var Season = $("#Season").val()
-            $("#Inquiry_data").html(null)
+            $("#booking_data").html(null)
 if (Car.length  == 0 || Season.length == 0){
     alert("Please select Season and Car");
     return false;
 }
             $.ajax({
-                url: "{% url 'get_inquiries' %}",
+                url: "{% url 'get_bookings' %}",
                 type: 'POST',
                 data: {
                     Car: Car,
@@ -89,17 +89,17 @@ if (Car.length  == 0 || Season.length == 0){
                 if (json_data.length < 1) {
                     alert("No data to display")
                 } else {
-                    var div_data = "<hr/><div class='form-group'> <label> Inquiry List</label> <select class='Inquiry_list form-control' name='Inquiry_list'> "
+                    var div_data = "<hr/><div class='form-group'> <label> booking List</label> <select class='booking_list form-control' name='booking_list'> "
 
                     for (key in json_data) {
                         div_data += "<option value='" + json_data[key]['id'] + "'>" + json_data[key]['name'] + " </option>"
                     }
                     div_data += "</select></div>"
-                    div_data += "<div class='form-group row'> <div class='col-md-6'> <label> Test Score </label> <input class='form-control' name='test' placeholder='Test Score' max='40' min='0' required type='number' /></div><div class='col-md-6'><label> Exam Score </label>  <input class='form-control' placeholder='Exam Score'  name='exam' max='60' min='0' required type='number' /> </div></div><div class='form-group'><button id='save_attendance' class='btn btn-success' type='submit'>Save Result</button></div></div>"
-                    $("#Inquiry_data").html(div_data)
+                    div_data += "<div class='form-group row'> <div class='col-md-6'> <label> Test Score </label> <input class='form-control' name='test' placeholder='Test Score' max='40' min='0' required type='number' /></div><div class='col-md-6'><label> Exam Score </label>  <input class='form-control' placeholder='Exam Score'  name='exam' max='60' min='0' required type='number' /> </div></div><div class='form-group'><button id='save_trips' class='btn btn-success' type='submit'>Save Result</button></div></div>"
+                    $("#booking_data").html(div_data)
                 }
             }).fail(function (response) {
-                alert("Error in fetching inquiries")
+                alert("Error in fetching bookings")
             })
 
 
