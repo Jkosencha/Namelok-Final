@@ -69,7 +69,6 @@ class BookingForm(CustomUserForm):
         model = booking
         fields = ['first_name', 'last_name', 'email', 'gender', 'season']
 
-
 class AdminForm(CustomUserForm):
     def __init__(self, *args, **kwargs):
         super(AdminForm, self).__init__(*args, **kwargs)
@@ -102,6 +101,16 @@ class CarForm(FormSettings):
     class Meta:
         model = Car
         fields = ['name', 'staff', 'role']
+
+class ItineraryForm(FormSettings):
+
+    def __init__(self, *args, **kwargs):
+        super(ItineraryForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Itinerary
+        fields = ['name', 'description']
+
 
 
 class SeasonForm(FormSettings):

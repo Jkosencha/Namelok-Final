@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import UpdateView
 from .models import Role, Trips, Staff, booking, CustomUser 
 from django.db import transaction
-from .forms import BookingForm
+from .forms import BookingForm, roleForm, ItineraryForm
 
 from .forms import *
 from .models import *
@@ -93,7 +93,7 @@ def admin_home(request):
         booking_name_list.append(booking_instance.admin.first_name)
 
     context = {
-        'page_title': "Staff Dashboard",
+        'page_title': "Administrative Dashboard",
         'total_bookings': total_bookings,
         'total_staff': total_staff,
         'total_role': total_role,
@@ -152,15 +152,15 @@ def add_staff(request):
 
 def add_booking(request):
     if request.method == 'POST':
-        booking_form = BookingForm(request.POST, request.FILES)
-        if booking_form.is_valid():
+        form = BookingForm(request.POST, request.FILES)
+        if form.is_valid():
             # Extract form data
-            first_name = booking_form.cleaned_data.get('first_name')
-            last_name = booking_form.cleaned_data.get('last_name')
-            email = booking_form.cleaned_data.get('email')
-            gender = booking_form.cleaned_data.get('gender')
-            role = booking_form.cleaned_data.get('role')
-            season = booking_form.cleaned_data.get('Season')
+            first_name = form.cleaned_data.get('first_name')
+            last_name = form.cleaned_data.get('last_name')
+            email = form.cleaned_data.get('email')
+            gender = form.cleaned_data.get('gender')
+            role = form.cleaned_data.get('role')
+            season = form.cleaned_data.get('Season')
             profile_pic = request.FILES.get('profile_pic')
 
             try:
@@ -173,25 +173,35 @@ def add_booking(request):
                     gender=gender,
                     profile_pic=profile_pic
                 )
+                print(f"User created: {user.id}") # Debugging line
 
                 # Create Booking instance and associate with user
                 booking_instance = booking.objects.create(
-                    user=user,  # Associate the booking with the created user
+                    user=user, # Associate the booking with the created user
                     role=role,
                     season=season
                 )
+                print(f"Booking created: {booking_instance.id}") # Debugging line
 
                 messages.success(request, "Booking added successfully")
                 return redirect('add_booking')
             except Exception as e:
                 messages.error(request, f"Could not add booking: {e}")
-        else:
-            messages.error(request, "Form is not valid")
     else:
-        booking_form = BookingForm()
+        form = BookingForm()
 
-    context = {'form': booking_form, 'page_title': 'Add booking'}
+    context = {'form': form, 'page_title': 'Add booking'}
     return render(request, 'hod_template/add_booking_template.html', context)
+
+    #     else:
+    #     messages.error(request, "Form is not valid")
+    #     else:
+    #     booking_form = BookingForm()
+
+    # context = {'form': booking_form, 'page_title': 'Add booking'}
+    # return render(request, 'hod_template/add_booking_template.html', context)
+
+
 
 def add_role(request):
     form = roleForm(request.POST or None)
@@ -245,8 +255,40 @@ def add_Car(request):
 
     return render(request, 'hod_template/add_Car_template.html', context)
 
+
+
+
+
+def add_itinerary(request):
+    form = ItineraryForm(request.POST or None)
+    context = {
+        'form': form,
+        'page_title': 'Add Itinerary'
+    }
+    if request.method == 'POST':
+        if form.is_valid():
+            name = form.cleaned_data.get('name')
+            description = form.cleaned_data.get('description')
+            
+            try:
+                itinerary_instance = Itinerary()  # Renamed variable to avoid conflict with model class name
+                itinerary_instance.name = name
+                itinerary_instance.description = description
+                itinerary_instance.save()
+                messages.success(request, "Successfully Added")
+                return redirect(reverse('add_itinerary'))
+
+            except Exception as e:
+                messages.error(request, "Could Not Add " + str(e))
+        else:
+            messages.error(request, "Fill Form Properly")
+
+    return render(request, 'hod_template/add_itinerary_template.html', context)
+
+
+
 def manage_staff(request):
-    allStaff = CustomUser.objects.filter(user_type=2)
+    allStaff = CustomUser.objects.filter(user_type=2) # Assuming CustomUser is your user model and user_type=2 represents staff
     context = {
         'allStaff': allStaff,
         'page_title': 'Manage Staff'
@@ -280,9 +322,18 @@ def manage_Car(request):
     }
     return render(request, "hod_template/manage_Car.html", context)
 
+def manage_itinerary(request):
+    itinerary = Itinerary.objects.all()
+    context = {
+        'itinerary': itinerary,
+        'page_title': 'Manage itinerary'
+    }
+    return render(request, "hod_template/manage_itinerary_template.html", context)
+
+
 
 def edit_staff(request, staff_id):
-    staff = get_object_or_404(Staff, id=staff_id)
+    staff = get_object_or_404(staff, id=staff_id)
     user = staff.user  # Access the associated user directly through the staff object
     form = StaffForm(request.POST or None, request.FILES or None, instance=staff)
     context = {
@@ -380,7 +431,7 @@ def edit_booking(request, booking_id):
 
 def edit_role(request, role_id):
     instance = get_object_or_404(Role, id=role_id)
-    form = RoleForm(request.POST or None, instance=instance)  # Use RoleForm instead of roleForm
+    form = roleForm(request.POST or None, instance=instance)  # Use RoleForm instead of roleForm
     context = {
         'form': form,
         'role_id': role_id,
@@ -428,6 +479,52 @@ def edit_Car(request, Car_id):
             messages.error(request, "Fill Form Properly")
     return render(request, 'hod_template/edit_Car_template.html', context)
 
+
+
+# def edit_itinerary(request, itinerary_id):
+#     instance = get_object_or_404(Itinerary, id=itinerary_id)
+#     form = ItineraryForm(request.POST or None, instance=instance)
+#     context = {
+#         'form': form,
+#         'itinerary_id': itinerary_id,
+#         'page_title': 'Edit itinerary'
+#     }
+#     if request.method == 'POST':
+#         if form.is_valid():
+#             name = form.cleaned_data.get('name')
+#             description = form.cleaned_data.get('description')
+#             try:
+#                 itinerary = itinerary.objects.get(id=itinerary_id)
+#                 itinerary.name = name
+#                 itinerary.description = description
+#                 itinerary.save()
+#                 messages.success(request, "Successfully Updated")
+#                 return redirect(reverse('edit_itinerary', args=[itinerary_id]))
+#             except Exception as e:
+#                 messages.error(request, "Could Not Add " + str(e))
+#         else:
+#             messages.error(request, "Fill Form Properly")
+#     return render(request, 'hod_template/edit_itinerary.html', context)
+
+def edit_itinerary(request, itinerary_id):
+    instance = get_object_or_404(Itinerary, id=itinerary_id)
+    
+    if request.method == 'POST':
+        form = ItineraryForm(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Successfully Updated")
+            return redirect('edit_itinerary', itinerary_id=itinerary_id)
+        else:
+            messages.error(request, "Fill Form Properly")
+    else:
+        form = ItineraryForm(instance=instance)
+    context = {
+        'form': form,
+        'itinerary_id': itinerary_id,
+        'page_title': 'Edit itinerary'
+    }
+    return render(request, 'hod_template/edit_itinerary.html', context)
 
 def add_Season(request):
     form = SeasonForm(request.POST or None)
@@ -652,10 +749,20 @@ def delete_staff(request, staff_id):
     staff.delete()
     messages.success(request, "Staff deleted successfully!")
     return redirect(reverse('manage_staff'))
+    
+# def delete_staff(request, staff_id):
+#     staff_instance = get_object_or_404(Staff, id=staff_id)
+#     try:
+#         staff_instance.delete()
+#         messages.success(request, "Staff deleted successfully!")
+#     except Exception:
+#         messages.error(
+#             request, "Sorry, some bookings are assigned to this user already. Kindly change the affected booking role and try again")
+#     return redirect(reverse('manage_staff'))
 
 
 def delete_booking(request, booking_id):
-    booking = get_object_or_404(CustomUser, booking__id=booking_id)
+    booking = get_object_or_404(booking, id=booking_id)
     booking.delete()
     messages.success(request, "booking deleted successfully!")
     return redirect(reverse('manage_booking'))
@@ -681,6 +788,17 @@ def delete_Car(request, Car_id):
     messages.success(request, "Car deleted successfully!")
     return redirect(reverse('manage_Car'))
 
+# def delete_itinerary(request, itinerary_id):
+#     itinerary = get_object_or_404(Itinerary, id=itinerary_id)
+#     Itinerary.delete()
+#     messages.success(request, "itinerary deleted successfully!")
+#     return redirect(reverse('manage_itinerary'))
+
+def delete_itinerary(request, itinerary_id):
+    itinerary = get_object_or_404(Itinerary, id=itinerary_id)
+    itinerary.delete()
+    messages.success(request, "Itinerary deleted successfully!")
+    return redirect(reverse('manage_itinerary'))
 
 def delete_Season(request, Season_id):
     Season = get_object_or_404(Season, id=Season_id)

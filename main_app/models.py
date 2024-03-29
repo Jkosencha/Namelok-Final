@@ -108,6 +108,18 @@ class Car(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Itinerary(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=120)
+    description = models.CharField(max_length=500)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return self.name
     
 
 class Trips(models.Model):

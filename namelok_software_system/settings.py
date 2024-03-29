@@ -38,9 +38,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware', # Ensure this is included
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # This should come after SessionMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware', # This should come after SessionMiddleware
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'namelok_software_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test17_db',
+        'NAME': 'test20_db',
         'USER': 'root',
         'PASSWORD': 'Jkosencha@29',
         'HOST': 'localhost',   # Change this if your MySQL server is running on a different host

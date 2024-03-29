@@ -35,10 +35,12 @@ urlpatterns = [
          name='get_admin_trips'),
     path("booking/add/", hod_views.add_booking, name='add_booking'),
     path("Car/add/", hod_views.add_Car, name='add_Car'),
+    path("itinerary/add/", hod_views.add_itinerary, name='add_itinerary'),
     path("staff/manage/", hod_views.manage_staff, name='manage_staff'),
     path("booking/manage/", hod_views.manage_booking, name='manage_booking'),
     path("role/manage/", hod_views.manage_role, name='manage_role'),
     path("Car/manage/", hod_views.manage_Car, name='manage_Car'),
+    path("itinerary/manage/", hod_views.manage_itinerary, name='manage_itinerary'),
     path("staff/edit/<int:staff_id>", hod_views.edit_staff, name='edit_staff'),
     path("staff/delete/<int:staff_id>",
          hod_views.delete_staff, name='delete_staff'),
@@ -49,6 +51,9 @@ urlpatterns = [
     path("Car/delete/<int:Car_id>",
          hod_views.delete_Car, name='delete_Car'),
 
+    path("itinerary/delete/<int:itinerary_id>",
+         hod_views.delete_itinerary, name='delete_itinerary'),
+
     path("Season/delete/<int:Season_id>",
          hod_views.delete_Season, name='delete_Season'),
 
@@ -58,8 +63,12 @@ urlpatterns = [
          hod_views.edit_booking, name='edit_booking'),
     path("role/edit/<int:role_id>",
          hod_views.edit_role, name='edit_role'),
+    path("itinerary/edit/<int:itinerary_id>",
+         hod_views.edit_itinerary, name='edit_itinerary'),
     path("Car/edit/<int:Car_id>",
          hod_views.edit_Car, name='edit_Car'),
+
+
 
 
     # Staff

@@ -212,6 +212,29 @@
                 </li>
 
                 <li class="nav-item">
+                    {% url 'add_itinerary' as add_itinerary%}
+                    <a href="{{add_itinerary}}" class="nav-link  {% if add_itinerary == request.path %} active {% endif %}">
+                        <i class="nav-icon fas fa-user-plus"></i>
+                        <p>
+                            Add itinerary
+
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    {% url 'manage_itinerary' as manage_itinerary %}
+                    {% url 'edit_itinerary' itinerary_id as edit_itinerary %}
+                    <a href="{{manage_itinerary}}"
+                        class="nav-link  {% if edit_itinerary == request.path or manage_itinerary == request.path %} active {% endif %}">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>
+                            Manage Itinerary
+
+                        </p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     {% url 'admin_notify_staff' as admin_notify_staff %}
                     <a href="{{admin_notify_staff}}"
                         class="nav-link {% if admin_notify_staff == request.path %} active {% endif %}">

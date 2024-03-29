@@ -5,10 +5,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
-from main_app.models import Season
+from main_app.models import Season, CustomUser
 
 from .EmailBackend import EmailBackend
 from .models import Trips, Season, Car, booking
+from .forms import ItineraryForm
+
 
 # Create your views here.
 
@@ -18,11 +20,11 @@ def landing_page(request):
 def login_page(request):
     if request.user.is_authenticated:
         if request.user.user_type == '1':
-            return redirect(reverse("login"))
+            return redirect(reverse("admin_home"))
         elif request.user.user_type == '2':
             return redirect(reverse("staff_home"))
         else:
-            return redirect(reverse("Student_home"))
+            return redirect(reverse("booking_home"))
     return render(request, 'main_app/login.html')
 
 
